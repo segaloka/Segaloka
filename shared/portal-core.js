@@ -1,0 +1,57 @@
+/* =====================================================================
+   PORTAL EKOSISTEM — Travel · Vendor · Pengguna · Affiliate · Mitra Travel · Agen
+   Satu aplikasi, satu database. Setiap portal dibatasi (scoped) ke satu entitas.
+   Di produksi: tiap portal = login sendiri + RLS per tenant; di sini: pratinjau "masuk sebagai".
+   ===================================================================== */
+const AGEN = [];
+MITRA.forEach((m, i) => { for (let k = 0; k < i % 4; k++) AGEN.push({ id: 'AGN-' + (8101 + AGEN.length * 3), name: PEOPLE[(i * 5 + k * 11 + 3) % PEOPLE.length], mitra: m.id, travel: m.travel, city: CITIES[(i + k * 2) % CITIES.length][0], phone: '+62 81' + ((i + k) % 9 + 1) + ' ' + (4100 + i * 37 + k * 11) + ' ' + (2200 + k * 97), jamaah30: (i * 3 + k * 5) % 12, status: m.status === 'inactive' ? 'inactive' : 'active', joined: T0 - (i * 20 + k * 7 + 10) * D }); });
+const uid = p => p + '-' + Date.now().toString(36).toUpperCase().slice(-6) + Math.random().toString(36).slice(2, 4).toUpperCase();
+function ensureLinks() { let n = 0; const h = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7); BOOKINGS.forEach(b => { if (b.mitra || b.lk) return; const ms = MITRA.filter(m => m.travel === b.travel && m.status === 'active'); b.lk = 1; n++; if (!ms.length || !(b.source === 'Mitra Travel' || h(b.id) % 3 === 0)) return; const m = ms[h(b.id) % ms.length]; b.source = 'Mitra Travel'; b.mitra = m.id; const ag = AGEN.filter(a => a.mitra === m.id && a.status === 'active'); if (ag.length && h(b.id) % 2) b.agen = ag[h(b.id) % ag.length].id; }); return n; }
+ensureLinks();
+
+const WS = {
+  travel: { label: ['Portal Travel', 'Travel Portal', 'بوابة شركة السفر'], icon: 'building', list: () => TRAVELS, sub: x => x.id + ' · ' + x.city, home: '/p/travel' },
+  vendor: { label: ['Portal Vendor', 'Vendor Portal', 'بوابة المورد'], icon: 'store', list: () => VENDORS, sub: x => x.id + ' · ' + x.cats.join(', '), home: '/p/vendor' },
+  traveler: { label: ['Aplikasi Pengguna', 'Traveler App', 'تطبيق المسافر'], icon: 'user', list: () => TRAVELERS, sub: x => x.id + ' · ' + x.city, home: '/p/traveler' },
+  affiliate: { label: ['Portal Affiliate', 'Affiliate Portal', 'بوابة المسوّق'], icon: 'link', list: () => AFFILIATES, sub: x => x.id + ' · ' + x.type, home: '/p/affiliate' },
+  mitra: { label: ['Portal Mitra Travel', 'Travel Partner Portal', 'بوابة الشريك'], icon: 'users', list: () => MITRA, sub: x => x.id + ' · ' + (travelById(x.travel) || {}).name, home: '/p/mitra' },
+  agen: { label: ['Portal Agen', 'Agent Portal', 'بوابة الوكيل'], icon: 'user', list: () => AGEN, sub: x => x.id + ' · Mitra ' + (MITRA.find(m => m.id === x.mitra) || {}).name, home: '/p/agen' }
+};
+const PNAV = {
+  travel: [['home', ['Beranda', 'Home', 'الرئيسية'], ''], ['package', ['Paket', 'Packages', 'الباقات'], '/packages'], ['calendar', ['Booking', 'Bookings', 'الحجوزات'], '/bookings'], ['plane', ['Keberangkatan', 'Departures', 'الرحلات'], '/departures'], ['users', ['Mitra & Agen', 'Partners & Agents', 'الشركاء والوكلاء'], '/mitra'], ['store', ['Layanan Vendor', 'Vendor Services', 'خدمات الموردين'], '/vendors'], ['wallet', ['Keuangan', 'Finance', 'المالية'], '/finance'], ['filecheck', ['Legalitas', 'Legality', 'الترخيص'], '/legal'], ['refresh', ['Subscription', 'Subscription', 'الاشتراك'], '/subscription']],
+  vendor: [['home', ['Beranda', 'Home', 'الرئيسية'], ''], ['package', ['Produk & Layanan', 'Products & Services', 'المنتجات'], '/products'], ['list', ['Order', 'Orders', 'الطلبات'], '/orders'], ['wallet', ['Keuangan', 'Finance', 'المالية'], '/finance'], ['folder', ['Dokumen & Verifikasi', 'Documents & Verification', 'المستندات'], '/documents']],
+  traveler: [['home', ['Beranda', 'Home', 'الرئيسية'], ''], ['calendar', ['Booking saya', 'My bookings', 'حجوزاتي'], '/bookings'], ['msg', ['Chat', 'Chat', 'المحادثة'], '/chat'], ['user', ['Profil', 'Profile', 'الملف'], '/profile']],
+  affiliate: [['home', ['Beranda', 'Home', 'الرئيسية'], ''], ['link', ['Link referral', 'Referral links', 'روابط الإحالة'], '/links'], ['percent', ['Komisi', 'Commission', 'العمولات'], '/commissions'], ['arrowur', ['Payout', 'Payout', 'الصرف'], '/payout']],
+  mitra: [['home', ['Beranda', 'Home', 'الرئيسية'], ''], ['package', ['Paket & Daftar Jamaah', 'Packages & Register', 'الباقات'], '/packages'], ['calendar', ['Booking', 'Bookings', 'الحجوزات'], '/bookings'], ['users', ['Agen saya', 'My agents', 'وكلائي'], '/agen'], ['percent', ['Komisi', 'Commission', 'العمولات'], '/commission']],
+  agen: [['home', ['Beranda', 'Home', 'الرئيسية'], ''], ['package', ['Paket & Daftar Jamaah', 'Packages & Register', 'الباقات'], '/packages'], ['calendar', ['Booking', 'Bookings', 'الحجوزات'], '/bookings'], ['percent', ['Komisi', 'Commission', 'العمولات'], '/commission']]
+};
+const PENT = store.get('pent', {});
+const wsOf = r => { const m = (r || S.route).match(/^\/p\/([a-z]+)/); return m && WS[m[1]] ? m[1] : 'admin'; };
+function me(ws) { const L = WS[ws].list(); let x = L.find(o => o.id === PENT[ws]); if (!x) { x = L.find(o => !['inactive', 'suspended'].includes(o.status || o.op)) || L[0]; if (x) PENT[ws] = x.id; } return x; }
+const wsLabel = ws => ws === 'admin' ? 'Super Admin · ' + t('control_center') : L3(WS[ws].label);
+const pAudit = (ws, action, resource, extra) => audit(me(ws).name, action, resource, 'success', Object.assign({ source: L3(WS[ws].label) }, extra || {}));
+const pNotif = (cat, tone, title, sub, route) => { NOTIFS.unshift({ id: uid('NTF'), cat, tone, title, sub, route, ts: nowTs(), unread: true }); renderTop(); };
+const pApproval = o => { const a = Object.assign({ id: uid('APR'), status: 'waiting', priority: 'p2', assignee: null, ts: nowTs(), risk: 15, docs: [], ctx: [], notes: [], fresh: true }, o); a.history = [{ t: 'Diajukan dari ' + o.source, ts: nowTs(), tone: 'info' }]; delete a.source; APPROVALS.unshift(a); return a; };
+const pHead = (ws, title, desc, actions) => phead({ crumbs: [[L3(WS[ws].label), WS[ws].home], [title, '']], title, desc, actions }) + (typeof portalStatusBanner === 'function' ? portalStatusBanner(ws) : '');
+const licFor = { Umrah: 'PPIU', Haji: 'PIHK', 'Halal Tour': 'BPW', Tour: 'BPW' };
+const licOk = (tr, cat) => { const l = tr.lic.find(x => x.type === licFor[cat]); return l && ['verified', 'expiring'].includes(l.status); };
+
+/* ---------- Portal shell (sidebar + workspace switcher) ---------- */
+function renderPortalSide(ws) {
+  const x = me(ws); const r = S.route.split('?')[0];
+  const items = PNAV[ws].map(([i, l, p]) => { const href = WS[ws].home + p; const act = p === '' ? r === href : r.startsWith(href); return `<li><a class="nav-item ${act ? 'active' : ''}" href="#${href}" data-label="${esc(L3(l))}" ${act ? 'aria-current="page"' : ''}>${ic(i)}<span class="lbl">${esc(L3(l))}</span></a></li>`; }).join('');
+  document.getElementById('side').innerHTML = `<div class="side-head"><div class="brandmark" style="--brand:${BRAND.color}">${esc(BRAND.mark)}</div><div class="brandtext"><div class="brandname">${esc(BRAND.name)}</div><div class="brandsub">${esc(L3(WS[ws].label))}</div></div></div>
+  <div class="brandtext" style="padding:12px 10px 4px"><button class="pent" data-act="pent-pick" data-ws="${ws}"><span class="ent">${x ? `<div class="lg" style="background:${x.color || colorFor(x.name)}">${esc(initials(x.name))}</div>` : ''}<span style="min-width:0;text-align:start"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x ? x.name : '—')}</b><span style="font-size:11px;color:var(--side-ink-2)">${esc(L3(['Masuk sebagai · ganti', 'Signed in as · switch', 'تبديل']))}</span></span></span>${ic('chevD', 'sm')}</button></div>
+  <nav class="side-scroll"><ul class="nav-list">${items}</ul></nav>
+  <div class="side-foot"><a class="nav-item" href="#/overview" data-label="Control Center">${icd('chevL')}<span class="lbl">Control Center</span></a><button class="iconbtn desk-only" style="color:var(--side-ink-2)" data-act="collapse" aria-label="${esc(t('collapse'))}">${ic('panel')}</button></div>`;
+}
+Object.assign(A, {
+  ws: el => popAt(el, `<div class="menu" style="min-width:300px"><div class="mh">${L3(['Pindah workspace', 'Switch workspace', 'تبديل مساحة العمل'])}</div><button class="mi" role="menuitemradio" aria-checked="${wsOf() === 'admin'}" data-act="nav" data-r="/overview">${ic('shieldc', 'sm')}<span><b>Super Admin</b><br><span class="muted" style="font-size:11.5px">${t('control_center')}</span></span></button><div class="sep"></div>${Object.entries(WS).map(([k, w]) => `<button class="mi" role="menuitemradio" aria-checked="${wsOf() === k}" data-act="nav" data-r="${w.home}">${ic(w.icon, 'sm')}<span><b>${esc(L3(w.label))}</b><br><span class="muted" style="font-size:11.5px">${esc(me(k) ? me(k).name : '—')}</span></span></button>`).join('')}<div class="sep"></div><div style="padding:6px 9px;font-size:11.5px;color:var(--ink-3);max-width:300px">${L3(['Pratinjau "masuk sebagai". Di produksi setiap portal memakai login sendiri & data dibatasi per entitas di database.', 'A "sign in as" preview. In production each portal has its own login & data is scoped per entity in the database.', 'معاينة.'])}</div></div>`, 'start'),
+  'pent-pick': el => { const ws = el.dataset.ws; const L = WS[ws].list(); modal({ title: L3(['Masuk sebagai', 'Sign in as', 'الدخول باسم']) + ' · ' + L3(WS[ws].label), body: `<label class="input" style="width:100%;flex:none;margin-bottom:10px">${ic('search', 'sm')}<input id="pe-q" type="search" placeholder="${t('search')}"></label><div class="list" id="pe-list" style="max-height:52vh;overflow:auto;border:1px solid var(--line);border-radius:10px">${L.map(x => `<button class="li" data-act="pent-set" data-ws="${ws}" data-id="${esc(x.id)}" data-s="${esc((x.name + ' ' + x.id).toLowerCase())}">${ent(x.name, esc(WS[ws].sub(x)), x.color || colorFor(x.name))}<span style="flex:1"></span>${st(x.op === 'review' ? 'review' : (x.op || x.status || 'active'))}</button>`).join('')}</div>` }); const q = document.getElementById('pe-q'); q.addEventListener('input', () => document.querySelectorAll('#pe-list .li').forEach(b => b.hidden = !b.dataset.s.includes(q.value.toLowerCase()))); },
+  'pent-set': el => { PENT[el.dataset.ws] = el.dataset.id; store.set('pent', PENT); closeOverlays(); go(WS[el.dataset.ws].home); rerender(); }
+});
+const portalBadge = ws => `<span class="chip" style="background:var(--accent-soft);color:var(--accent-text)">${ic(WS[ws].icon, 'sm')}${esc(L3(WS[ws].label))}</span>`;
+const tbl = (head, rows, empty) => rows.length ? `<div class="tbl-wrap"><table class="t"><thead><tr>${head.map(h => `<th class="${/^(Total|Nilai|Harga|Amount|Komisi|Saldo|Pax|Seat|GMV|Klik|Konversi|Rp)/.test(h) ? 'r' : ''}">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>` : stateBlock('empty', empty ? { title: empty } : {});
+const rowLink = (href, cells) => `<tr class="clickable" data-href="${href}">${cells}</tr>`;
+const fields = (F, pfx) => F.map(f => fieldHTML(f, null, pfx)).join('');
+
