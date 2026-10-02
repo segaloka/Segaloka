@@ -23,6 +23,7 @@ Object.assign(A, {
   copy: el => { const v = el.dataset.v; try { navigator.clipboard.writeText(v).then(() => toast('ok', L3(['Disalin', 'Copied', 'تم النسخ']), v), () => toast('info', v, L3(['Salin manual', 'Copy manually', 'انسخ يدوياً']))); } catch (e) { toast('info', v, ''); } closeOverlays(); },
 
 });
+['role', 'ux'].forEach(name => { if (!actionAllowed(name, ['control-center'])) delete A[name]; });
 A['confirm-ok'] = el => { const need = el.dataset.need === '1'; const ta = document.getElementById('cf-reason'); const r = ta ? ta.value.trim() : ''; if (need && !r) { ta.focus(); ta.style.borderColor = 'var(--bad)'; document.getElementById('cf-hint').style.color = 'var(--bad)'; return; } const cb = confirmCb; confirmCb = null; closeOverlays(); if (cb) cb(r || null); };
 
 document.addEventListener('click', e => {
