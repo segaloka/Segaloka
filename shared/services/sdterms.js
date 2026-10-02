@@ -27,7 +27,7 @@ function sdChargeFee(o, r, b) { const tr = travelById(o.travel); const fee = (o.
 /* setelah deposit dikonfirmasi: lunasi biaya yang tertunda (paling lama dulu) */
 function sdSettleOwed(tid) { SD_LEDGER.filter(x => x.travel === tid && x.kind === 'fee' && x.state === 'awaiting_deposit').sort((a, b) => a.ts - b.ts).forEach(x => { if (sdBalance(tid) >= x.amount) { x.state = 'confirmed'; x.settledAt = nowTs(); const b = bookingById(x.booking); if (b) b.sdFeeState = 'paid'; } }); }
 /* booking SegaDeals tidak bisa diproses Travel sebelum biaya terpenuhi */
-if (A['tb-next']) { const f = A['tb-next']; A['tb-next'] = el => { const b = bookingById(el.dataset.id); if (b && b.sdFeeState === 'awaiting_deposit') return toast('warn', L3(['Setor deposit SegaDeals dulu', 'Top up your SegaDeals deposit first', 'أودع أولاً']), money(b.sdFee)); return f(el); }; }
+if (actionAllowed('tb-next', ['travel']) && A['tb-next']) { const f = A['tb-next']; A['tb-next'] = el => { const b = bookingById(el.dataset.id); if (b && b.sdFeeState === 'awaiting_deposit') return toast('warn', L3(['Setor deposit SegaDeals dulu', 'Top up your SegaDeals deposit first', 'أودع أولاً']), money(b.sdFee)); return f(el); }; }
 
 /* ---------- Portal Travel: S&K, deposit ---------- */
 function sdTravelPanel(tr) {
@@ -62,6 +62,7 @@ A['sdd-save'] = el => { const u = me('traveler'); const b = bookingById(el.datas
   if (bad) { toast('warn', L3(['Isi nama atau pilih "Diwakilkan"', 'Enter a name or choose “Represented”', 'أدخل الاسم']), ''); return; }
   audit(u.name, 'booking.pilgrims.set', 'Booking/' + b.id, 'success', { source: 'Aplikasi Pengguna · SegaDeals', after: P.map(x => x.name || '(diwakilkan)').join(', ') }); partyNotify([ntKey('travel', b.travel)], 'booking', 'info', L3(['Data peserta SegaDeals masuk', 'SegaDeals traveller data received', 'بيانات جديدة']), b.id + ' · ' + b.pax + ' pax', { travel: '/p/travel/bookings/' + b.id });
   toast('ok', L3(['Data peserta tersimpan', 'Traveller data saved', 'حُفظت']), L3(['Lanjut: dokumen & pembayaran', 'Next: documents & payment', 'التالي'])); go('/p/traveler/bookings/' + b.id); };
+if (!actionAllowed('sdd-save', ['traveler'])) delete A['sdd-save'];
 
 /* ---------- Rekomendasi paspor & surat cuti ---------- */
 const IMIGRASI = ['Kanim Jakarta Selatan', 'Kanim Jakarta Pusat', 'Kanim Jakarta Timur', 'Kanim Bandung', 'Kanim Bogor', 'Kanim Tangerang', 'Kanim Bekasi', 'Kanim Semarang', 'Kanim Yogyakarta', 'Kanim Surabaya', 'Kanim Malang', 'Kanim Denpasar', 'Kanim Makassar', 'Kanim Medan', 'Kanim Palembang', 'Kanim Pekanbaru', 'Kanim Banjarmasin', 'Kanim Balikpapan', 'Kanim Manado', 'Kanim Mataram', 'Lainnya'];
