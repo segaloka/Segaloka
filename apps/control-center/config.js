@@ -8,3 +8,4 @@ APP.accountMenu = () => acctHTML();
 APP.closeContext = () => { if (OMNI.showCtx && A['ctx-toggle']) A['ctx-toggle'](); };
 APP.afterPoll = () => { const ol = document.getElementById('omni-live'); if (ol && typeof omniLoad === 'function') omniLoad(ol.dataset.ch).catch(() => {}); };
 APP.conversationChanged = a => { if (OMNI.active !== a.id) return; const ch = document.getElementById('chat'); if (ch) setTimeout(() => { const x = document.getElementById('chat'); if (x) x.scrollTop = x.scrollHeight; }, 50); };
+APP.realtimeTick = () => controlCenterRealtime();
