@@ -1,7 +1,7 @@
 /* ======================= STATE ======================= */
 const A = {}; // action registry (data-act → handler)
 const store = { get(k, d) { try { const v = localStorage.getItem('sg.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('sg.' + k, JSON.stringify(v)); } catch (e) {} } };
-const APP = { home: '/overview', actor: 'Admin Pusat', renderShell: null, renderSide: null, renderTop: null, renderBanners: null, accountMenu: null };
+const APP = { home: '/overview', actor: 'Admin Pusat', renderShell: null, renderSide: null, renderTop: null, renderBanners: null, accountMenu: null, closeContext: null };
 const S = { lang: store.get('lang', 'id'), theme: store.get('theme', 'system'), collapsed: store.get('collapsed', false), openG: new Set(store.get('openG', [])), openM: new Set(store.get('openM', [])), role: store.get('role', 'super_admin'), ux: 'normal', route: APP.home, navFilter: '' };
 
 /* ======================= PERMISSION (backend-provided) =======================
