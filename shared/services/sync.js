@@ -148,8 +148,37 @@ function announce() { const C = SB.changes.splice(0); if (!C.length) return; con
   msgs.slice(0, 3).forEach(m => toast(m[0], m[1], m[2], m[3])); if (msgs.length > 3) toast('info', '+' + (msgs.length - 3) + ' ' + L3(['perubahan lain', 'more changes', 'تغييرات أخرى']), ''); setTimeout(() => { SB.flash.clear(); }, 3500); }
 const PROBE_SQL = () => 'select (extract(epoch from greatest(' + [...Object.keys(CORE).map(k => `(select max(updated_at) from control_center.${k})`), '(select max(updated_at) from control_center.records)', '(select max(updated_at) from control_center.settings)', '(select max(inserted_at) from control_center.audit_log)'].join(', ') + '))*1000)::bigint as m';
 async function sbProbe(force) { if (!SB.on || SB.busy || SB.polling || (document.hidden && !force)) return; try { const r = await sql(PROBE_SQL()); const m = +(r[0] && r[0].m) || 0; if (!SB.seen) { SB.seen = m; return; } if (m > SB.seen) { SB.seen = m; await sbPoll(true); if (APP.afterPoll) APP.afterPoll(); } } catch (e) { } }
-async function rtInit() { let room = null; try { room = await window.claude.use('room'); } catch (e) { } if (!room) return; SB.room = room; room.on('sg.changed', msg => { if (msg.sameTab) return; setTimeout(() => sbPoll(true), 150); }); room.onPeers(ch => { SB.peers = ch.peers.length; paintSync(); }); }
-function rtEmit(n) { if (SB.room) SB.room.emit('sg.changed', { n }).catch(() => { }); }
+async function rtInit() {
+  const onChanged = () => setTimeout(() => sbPoll(true), 150);
+
+  if (APP.realtimeTransport) {
+    try {
+      const transport = await APP.realtimeTransport({
+        onChanged,
+        onPeers: peers => { SB.peers = peers; paintSync(); }
+      });
+      if (transport) {
+        SB.room = transport;
+        return;
+      }
+    } catch (e) { }
+  }
+
+  let room = null;
+  try { room = await window.claude.use('room'); } catch (e) { }
+  if (!room) return;
+  SB.room = room;
+  room.on('sg.changed', msg => { if (msg.sameTab) return; onChanged(); });
+  room.onPeers(ch => { SB.peers = ch.peers.length; paintSync(); });
+}
+function rtEmit(n) {
+  if (!SB.room) return;
+  if (typeof SB.room.emitChanged === 'function') {
+    Promise.resolve(SB.room.emitChanged({ n })).catch(() => { });
+    return;
+  }
+  if (typeof SB.room.emit === 'function') SB.room.emit('sg.changed', { n }).catch(() => { });
+}
 
 /* seed export (dipakai sekali untuk mengisi database) */
 function sbExport() { const out = { core: {}, recs: {}, sets: {}, audit: AUDIT }; ALLC().forEach(([n, g, core]) => (core ? out.core : out.recs)[n] = g().filter(o => o && o.id)); Object.entries(SETS).forEach(([k, [g]]) => out.sets[k] = g()); return out; }
