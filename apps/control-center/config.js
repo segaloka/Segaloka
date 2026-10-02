@@ -5,3 +5,4 @@ APP.renderSide = () => renderSide();
 APP.renderTop = () => renderTop();
 APP.renderBanners = () => renderBanners();
 APP.accountMenu = () => acctHTML();
+APP.closeContext = () => { if (OMNI.showCtx && A['ctx-toggle']) A['ctx-toggle'](); };
