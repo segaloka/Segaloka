@@ -2,7 +2,7 @@
 node_modules/
 
 # Generated build
-_all.js
+_*.js
 
 # Environment / secrets
 .env
