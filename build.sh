@@ -95,6 +95,25 @@ check_js_files "${CONTROL_FILES[@]}"
 cat "${CONTROL_FILES[@]}" > _control-center.js
 echo "syntax-check bundle: _control-center.js"
 node --check _control-center.js
+
+# Hard UI boundary: Control Center is administration only, never a portal/workspace switcher.
+CONTROL_FORBIDDEN_PATTERNS=(
+  "PINDAH WORKSPACE"
+  "Pindah Workspace"
+  "Portal Travel"
+  "Portal Vendor"
+  "Aplikasi Pengguna"
+  "Portal Affiliate"
+  "Portal Mitra Travel"
+  "Portal Agen"
+)
+for pattern in "${CONTROL_FORBIDDEN_PATTERNS[@]}"; do
+  if grep -Fq "$pattern" _control-center.js; then
+    echo "ERROR: Control Center contains forbidden workspace switcher marker: $pattern" >&2
+    exit 1
+  fi
+done
+
 emit_html "SEGALOKA Control Center" _control-center.js segaloka-control-center.html
 
 build_bundle travel "SEGALOKA Travel" apps/travel/config.js apps/travel/portal.js
