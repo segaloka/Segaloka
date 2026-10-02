@@ -36,19 +36,6 @@ const pHead = (ws, title, desc, actions) => phead({ crumbs: [[L3(WS[ws].label), 
 const licFor = { Umrah: 'PPIU', Haji: 'PIHK', 'Halal Tour': 'BPW', Tour: 'BPW' };
 const licOk = (tr, cat) => { const l = tr.lic.find(x => x.type === licFor[cat]); return l && ['verified', 'expiring'].includes(l.status); };
 
-/* ---------- Portal shell (sidebar + workspace switcher) ---------- */
-function renderPortalSide(ws) {
-  const x = me(ws); const r = S.route.split('?')[0];
-  const items = PNAV[ws].map(([i, l, p]) => { const href = WS[ws].home + p; const act = p === '' ? r === href : r.startsWith(href); return `<li><a class="nav-item ${act ? 'active' : ''}" href="#${href}" data-label="${esc(L3(l))}" ${act ? 'aria-current="page"' : ''}>${ic(i)}<span class="lbl">${esc(L3(l))}</span></a></li>`; }).join('');
-  document.getElementById('side').innerHTML = `<div class="side-head"><div class="brandmark" style="--brand:${BRAND.color}">${esc(BRAND.mark)}</div><div class="brandtext"><div class="brandname">${esc(BRAND.name)}</div><div class="brandsub">${esc(L3(WS[ws].label))}</div></div></div>
-  <div class="brandtext" style="padding:12px 10px 4px"><button class="pent" data-act="pent-pick" data-ws="${ws}"><span class="ent">${x ? `<div class="lg" style="background:${x.color || colorFor(x.name)}">${esc(initials(x.name))}</div>` : ''}<span style="min-width:0;text-align:start"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x ? x.name : '—')}</b><span style="font-size:11px;color:var(--side-ink-2)">${esc(L3(['Masuk sebagai · ganti', 'Signed in as · switch', 'تبديل']))}</span></span></span>${ic('chevD', 'sm')}</button></div>
-  <nav class="side-scroll"><ul class="nav-list">${items}</ul></nav>
-  <div class="side-foot"><button class="iconbtn desk-only" style="color:var(--side-ink-2)" data-act="collapse" aria-label="${esc(t('collapse'))}">${ic('panel')}</button></div>`;
-}
-Object.assign(A, {
-  'pent-pick': el => { const ws = el.dataset.ws; const L = WS[ws].list(); modal({ title: L3(['Masuk sebagai', 'Sign in as', 'الدخول باسم']) + ' · ' + L3(WS[ws].label), body: `<label class="input" style="width:100%;flex:none;margin-bottom:10px">${ic('search', 'sm')}<input id="pe-q" type="search" placeholder="${t('search')}"></label><div class="list" id="pe-list" style="max-height:52vh;overflow:auto;border:1px solid var(--line);border-radius:10px">${L.map(x => `<button class="li" data-act="pent-set" data-ws="${ws}" data-id="${esc(x.id)}" data-s="${esc((x.name + ' ' + x.id).toLowerCase())}">${ent(x.name, esc(WS[ws].sub(x)), x.color || colorFor(x.name))}<span style="flex:1"></span>${st(x.op === 'review' ? 'review' : (x.op || x.status || 'active'))}</button>`).join('')}</div>` }); const q = document.getElementById('pe-q'); q.addEventListener('input', () => document.querySelectorAll('#pe-list .li').forEach(b => b.hidden = !b.dataset.s.includes(q.value.toLowerCase()))); },
-  'pent-set': el => { PENT[el.dataset.ws] = el.dataset.id; store.set('pent', PENT); closeOverlays(); go(WS[el.dataset.ws].home); rerender(); }
-});
 const portalBadge = ws => `<span class="chip" style="background:var(--accent-soft);color:var(--accent-text)">${ic(WS[ws].icon, 'sm')}${esc(L3(WS[ws].label))}</span>`;
 const tbl = (head, rows, empty) => rows.length ? `<div class="tbl-wrap"><table class="t"><thead><tr>${head.map(h => `<th class="${/^(Total|Nilai|Harga|Amount|Komisi|Saldo|Pax|Seat|GMV|Klik|Konversi|Rp)/.test(h) ? 'r' : ''}">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>` : stateBlock('empty', empty ? { title: empty } : {});
 const rowLink = (href, cells) => `<tr class="clickable" data-href="${href}">${cells}</tr>`;
