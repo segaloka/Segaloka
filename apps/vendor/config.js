@@ -5,3 +5,4 @@ APP.renderSide = () => renderPortalSide('vendor');
 APP.renderTop = () => renderPortalTop();
 APP.renderBanners = () => renderPortalBanners();
 APP.accountMenu = () => portalAcctHTML();
+APP.notificationRoute = () => null;
