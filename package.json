@@ -1,0 +1,8 @@
+{
+  "name": "segaloka-dashboard",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "bash build.sh"
+  }
+}
