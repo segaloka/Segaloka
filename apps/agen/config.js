@@ -6,3 +6,5 @@ APP.renderTop = () => renderPortalTop();
 APP.renderBanners = () => renderPortalBanners();
 APP.accountMenu = () => portalAcctHTML();
 APP.notificationRoute = () => null;
+
+APP.documentTitle = () => BRAND.name + ' · Agen';
