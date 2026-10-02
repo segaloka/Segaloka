@@ -63,6 +63,23 @@ CONTROL_FILES=(
   shared/runtime/main.js
   shared/runtime/boot.js
 )
+# Hard boundary: Control Center must never embed role portal runtimes.
+for forbidden in \
+  apps/travel/portal.js \
+  apps/vendor/portal.js \
+  apps/traveler/portal.js \
+  apps/affiliate/portal.js \
+  apps/mitra/portal.js \
+  apps/agen/portal.js \
+  shared/partner-agent-portal.js; do
+  for included in "${CONTROL_FILES[@]}"; do
+    if [[ "$included" == "$forbidden" ]]; then
+      echo "ERROR: Control Center bundle includes role portal runtime: $forbidden" >&2
+      exit 1
+    fi
+  done
+done
+
 cat "${CONTROL_FILES[@]}" > _control-center.js
 node --check _control-center.js
 emit_html "SEGALOKA Control Center" _control-center.js segaloka-control-center.html
