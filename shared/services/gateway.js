@@ -44,4 +44,4 @@ A['ts-pay'] = async () => { const tr = me('travel'); if (!tr || !tr.sub) return;
 if (!actionAllowed('pay-go', ['traveler', 'mitra', 'agen'])) delete A['pay-go'];
 if (!actionAllowed('pay-open', ['traveler', 'travel', 'mitra', 'agen'])) delete A['pay-open'];
 ['sd-topup', 'sd-topup-go', 'ts-pay'].forEach(name => { if (!actionAllowed(name, ['travel'])) delete A[name]; });
-delete A['u-pay'];
+if (actionAllowed('u-pay', ['traveler'])) delete A['u-pay'];
