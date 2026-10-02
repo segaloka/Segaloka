@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/control-center", "destination": "/control-center.html" },
+    { "source": "/travel", "destination": "/travel.html" },
+    { "source": "/vendor", "destination": "/vendor.html" },
+    { "source": "/traveler", "destination": "/traveler.html" },
+    { "source": "/affiliate", "destination": "/affiliate.html" },
+    { "source": "/mitra", "destination": "/mitra.html" },
+    { "source": "/agen", "destination": "/agen.html" }
+  ]
+}
