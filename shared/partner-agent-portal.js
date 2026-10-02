@@ -33,7 +33,19 @@ Object.assign(A, {
     const a = { id: uid('AGN'), name:v.name, city:v.city, phone:v.phone, mitra:m.id, travel:m.travel, jamaah30:0, status:'active', joined:nowTs() };
     AGEN.unshift(a); pAudit('mitra', 'agen.create', 'Agen/' + a.id); closeOverlays(); toast('ok', L3(['Agen ditambahkan', 'Agent added', 'أُضيف الوكيل']), a.name + ' → ' + travelById(m.travel).name); rerender();
   },
-  'ag-toggle': el => { const a = AGEN.find(x => x.id === el.dataset.id); a.status = a.status === 'active' ? 'inactive' : 'active'; pAudit('mitra', 'agen.' + (a.status === 'active' ? 'activate' : 'deactivate'), 'Agen/' + a.id); rerender(); },
+  'ag-toggle': async el => {
+    const a = AGEN.find(x => x.id === el.dataset.id); if (!a) return;
+    const next = a.status === 'active' ? 'inactive' : 'active';
+    if (APP.dataBackend === 'canonical') {
+      if (!APP.canonicalSetAgenStatus) { toast('bad', 'Backend', 'Canonical Agen adapter belum tersedia.'); return; }
+      try {
+        const result = await APP.canonicalSetAgenStatus({ agenId:a.id, status:next });
+        if (!result || !result.ok) { toast('bad', 'Agen', 'Status Agen gagal diubah.'); return; }
+        toast('ok', 'Agen', a.name + ' · ' + next); rerender(); return;
+      } catch (e) { toast('bad', 'Backend', e && e.message ? e.message : 'Status Agen gagal diubah.'); return; }
+    }
+    a.status = next; pAudit('mitra', 'agen.' + (a.status === 'active' ? 'activate' : 'deactivate'), 'Agen/' + a.id); rerender();
+  },
   'ma-reg': el => { const ws = el.dataset.ws; const p = pkgById(el.dataset.id); modal({ title: L3(['Daftarkan jamaah', 'Register pilgrim', 'تسجيل معتمر']) + ' · ' + p.name, body: fields([{ k: 'who', label: L3(['Jamaah', 'Pilgrim', 'المعتمر']), type: 'select', options: () => [['new', L3(['+ Jamaah baru', '+ New pilgrim', '+ جديد'])], ...TRAVELERS.map(x => [x.id, x.name])] }, { k: 'name', label: L3(['Nama jamaah baru', 'New pilgrim name', 'الاسم']) }, { k: 'phone', label: L3(['Telepon', 'Phone', 'الهاتف']), def: '+62 ' }, { k: 'pax', label: 'Pax', type: 'number', def: 1, min: 1, max: Math.max(1, p.seats - p.sold) }], 'mr-') + `<p class="muted" style="font-size:12.5px">${money(p.price)} / pax · VA ${L3(['diterbitkan otomatis', 'issued automatically', 'تلقائي'])}</p>`, foot: `<button class="btn" data-act="close">${t('cancel')}</button><button class="btn primary" data-act="ma-reg-go" data-ws="${ws}" data-id="${p.id}">${L3(['Buat booking', 'Create booking', 'إنشاء حجز'])}</button>` }); },
   'ma-reg-go': el => { const ws = el.dataset.ws; const v = formVals([{ k: 'who' }, { k: 'name' }, { k: 'phone' }, { k: 'pax', type: 'number' }], 'mr-'); let tid = v.who; if (tid === 'new') { if (!v.name) { document.getElementById('mr-name').style.borderColor = 'var(--bad)'; return; } tid = uid('TRL'); TRAVELERS.push({ id: tid, name: v.name, phone: v.phone, email: '—', city: '—', passport: 'pending', trips: 0, since: nowTs() }); } const { x, m } = chainOf(ws); const b = createBooking(el.dataset.id, tid, v.pax || 1, 'Mitra Travel', { mitra: m.id, agen: ws === 'agen' ? x.id : undefined }); if (!b) return; pAudit(ws, 'booking.create', 'Booking/' + b.id); closeOverlays(); toast('ok', L3(['Booking dibuat', 'Booking created', 'أُنشئ الحجز']), b.id + ' · VA ' + L3(['dikirim ke jamaah', 'sent to pilgrim', 'أُرسل'])); go('/p/' + ws + '/bookings'); }
 });
