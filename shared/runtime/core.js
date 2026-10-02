@@ -1,7 +1,7 @@
 /* ======================= STATE ======================= */
 const A = {}; // action registry (data-act → handler)
 const store = { get(k, d) { try { const v = localStorage.getItem('sg.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('sg.' + k, JSON.stringify(v)); } catch (e) {} } };
-const APP = { home: '/overview', actor: 'System', renderShell: null, renderSide: null, renderTop: null, renderBanners: null, accountMenu: null, closeContext: null, afterPoll: null, conversationChanged: null, realtimeTick: null, searchScopes: null, searchIndex: null, searchRecent: null, notificationRoute: null, adminUI: null, documentTitle: null, routeScope: null, actionScope: null, realtimeTransport: null, dataBackend: 'legacy' };
+const APP = { home: '/overview', actor: 'System', renderShell: null, renderSide: null, renderTop: null, renderBanners: null, accountMenu: null, closeContext: null, afterPoll: null, conversationChanged: null, realtimeTick: null, searchScopes: null, searchIndex: null, searchRecent: null, notificationRoute: null, adminUI: null, documentTitle: null, routeScope: null, actionScope: null, realtimeTransport: null, dataBackend: 'legacy', canonicalLoad: null, canonicalPoll: null, canonicalFlush: null };
 const S = { lang: store.get('lang', 'id'), theme: store.get('theme', 'system'), collapsed: store.get('collapsed', false), openG: new Set(store.get('openG', [])), openM: new Set(store.get('openM', [])), role: store.get('role', 'system'), ux: 'normal', route: APP.home, navFilter: '' };
 
 /* ======================= PERMISSION (backend-provided) =======================
