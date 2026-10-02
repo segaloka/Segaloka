@@ -1,3 +1,4 @@
+APP.renderShell = () => renderShell();
 APP.home = '/p/vendor';
 APP.actor = 'Vendor';
 APP.renderSide = () => renderPortalSide('vendor');
