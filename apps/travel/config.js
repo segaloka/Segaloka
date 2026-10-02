@@ -10,3 +10,5 @@ APP.notificationRoute = (kind, d) => ({ 'booking.new': '/p/travel/bookings/' + d
 APP.documentTitle = () => BRAND.name + ' · Travel';
 
 APP.routeScope = p => p.startsWith('/p/travel');
+
+APP.actionScope = (name, scopes) => !scopes.length || scopes.includes('travel');
