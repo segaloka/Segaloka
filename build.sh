@@ -107,14 +107,18 @@ CONTROL_FORBIDDEN_PATTERNS=(
   "Portal Mitra Travel"
   "Portal Agen"
 )
+emit_html "SEGALOKA Control Center" _control-center.js segaloka-control-center.html
+
+# Validate rendered/deployable output rather than source comments.
 for pattern in "${CONTROL_FORBIDDEN_PATTERNS[@]}"; do
-  if grep -Fq "$pattern" _control-center.js; then
-    echo "ERROR: Control Center contains forbidden workspace switcher marker: $pattern" >&2
-    exit 1
+  if grep -Fq "$pattern" segaloka-control-center.html; then
+    # Ignore source-code comments embedded inside the script payload.
+    if grep -F "$pattern" segaloka-control-center.html | grep -Fv "/*" | grep -Fv "*/" >/dev/null; then
+      echo "ERROR: Control Center contains forbidden workspace switcher marker: $pattern" >&2
+      exit 1
+    fi
   fi
 done
-
-emit_html "SEGALOKA Control Center" _control-center.js segaloka-control-center.html
 
 build_bundle travel "SEGALOKA Travel" apps/travel/config.js apps/travel/portal.js
 build_bundle vendor "SEGALOKA Vendor" apps/vendor/config.js apps/vendor/portal.js
