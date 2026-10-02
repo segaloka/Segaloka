@@ -169,9 +169,22 @@ async function loadCanonicalPartners(ctx) {
 }
 
 
+function sqlLiteral(v) { return "'" + String(v == null ? '' : v).replace(/'/g, "''") + "'"; }
+
+async function canonicalInviteAgen(input) {
+  const q = `select public.invite_agen_by_email(${sqlLiteral(input.orgId)}::uuid, ${sqlLiteral(input.mitraId)}::uuid, ${sqlLiteral(input.email)}, ${sqlLiteral(input.commissionType || 'percentage')}, ${Number(input.commissionValue || 0)}) as result`;
+  const rows = await sql(q);
+  const result = rows && rows[0] ? rows[0].result : null;
+  if (!result || !result.ok) return result || { ok:false, reason:'unknown' };
+  await loadCanonicalStage1({ sql, SB });
+  return result;
+}
+
+
 function installCanonicalStage1() {
   APP.dataBackend = 'canonical';
   APP.canonicalLoad = loadCanonicalStage1;
   APP.canonicalPoll = loadCanonicalStage1;
   APP.canonicalFlush = null;
+  APP.canonicalInviteAgen = canonicalInviteAgen;
 }
