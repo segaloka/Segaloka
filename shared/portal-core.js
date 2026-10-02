@@ -30,7 +30,7 @@ const wsOf = r => { const m = (r || S.route).match(/^\/p\/([a-z]+)/); return m &
 function me(ws) { const L = WS[ws].list(); let x = L.find(o => o.id === PENT[ws]); if (!x) { x = L.find(o => !['inactive', 'suspended'].includes(o.status || o.op)) || L[0]; if (x) PENT[ws] = x.id; } return x; }
 const wsLabel = ws => ws === 'admin' ? 'Super Admin · ' + t('control_center') : L3(WS[ws].label);
 const pAudit = (ws, action, resource, extra) => audit(me(ws).name, action, resource, 'success', Object.assign({ source: L3(WS[ws].label) }, extra || {}));
-const pNotif = (cat, tone, title, sub, route) => { NOTIFS.unshift({ id: uid('NTF'), cat, tone, title, sub, route, ts: nowTs(), unread: true }); renderTop(); };
+const pNotif = (cat, tone, title, sub, route) => { NOTIFS.unshift({ id: uid('NTF'), cat, tone, title, sub, route, ts: nowTs(), unread: true }); APP.renderTop(); };
 const pApproval = o => { const a = Object.assign({ id: uid('APR'), status: 'waiting', priority: 'p2', assignee: null, ts: nowTs(), risk: 15, docs: [], ctx: [], notes: [], fresh: true }, o); a.history = [{ t: 'Diajukan dari ' + o.source, ts: nowTs(), tone: 'info' }]; delete a.source; APPROVALS.unshift(a); return a; };
 const pHead = (ws, title, desc, actions) => phead({ crumbs: [[L3(WS[ws].label), WS[ws].home], [title, '']], title, desc, actions }) + (typeof portalStatusBanner === 'function' ? portalStatusBanner(ws) : '');
 const licFor = { Umrah: 'PPIU', Haji: 'PIHK', 'Halal Tour': 'BPW', Tour: 'BPW' };
