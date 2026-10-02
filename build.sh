@@ -6,6 +6,15 @@ COMMON_HEAD=( shared/i18n/i18n.js shared/data/data.js shared/runtime/core.js )
 COMMON_PORTAL=( shared/portal-core.js shared/portal-shell.js shared/portal-topbar.js shared/portal-onboarding.js )
 COMMON_SERVICES=( shared/services/segadeals.js shared/services/flows.js shared/services/reviews.js shared/services/sdterms.js shared/services/gateway.js shared/runtime/datamode.js shared/services/notify.js shared/services/canonical-adapter.js shared/services/sync.js shared/runtime/main.js shared/runtime/boot.js )
 
+check_js_files() {
+  local f
+  for f in "$@"; do
+    echo "syntax-check: $f"
+    node --check "$f"
+  done
+}
+
+
 emit_html() {
   local title="$1" js="$2" out="$3"
   {
@@ -31,7 +40,9 @@ build_bundle() {
   local files=("${COMMON_HEAD[@]}" "$config" "${COMMON_PORTAL[@]}")
   if [[ -n "$extra" ]]; then files+=("$extra"); fi
   files+=("$portal" "${COMMON_SERVICES[@]}")
+  check_js_files "${files[@]}"
   cat "${files[@]}" > "$js"
+  echo "syntax-check bundle: $js"
   node --check "$js"
   emit_html "$title" "$js" "segaloka-${name}.html"
 }
@@ -80,7 +91,9 @@ for forbidden in \
   done
 done
 
+check_js_files "${CONTROL_FILES[@]}"
 cat "${CONTROL_FILES[@]}" > _control-center.js
+echo "syntax-check bundle: _control-center.js"
 node --check _control-center.js
 emit_html "SEGALOKA Control Center" _control-center.js segaloka-control-center.html
 
