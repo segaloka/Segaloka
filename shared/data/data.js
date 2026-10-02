@@ -143,9 +143,17 @@ CONVERSATIONS[1].messages.push({ dir: 'sys', text: 'Webhook payment.pending dite
 
 /* ---------- Approvals ---------- */
 const AP_TYPES = { travel_verif: ['Travel','Verifikasi Travel','Travel verification'], vendor_verif: ['Vendor','Verifikasi Vendor','Vendor verification'], legal_doc: ['Legalitas','Dokumen legal','Legal document'], withdrawal: ['Keuangan','Withdrawal','Withdrawal'], refund: ['Keuangan','Refund','Refund'], sensitive: ['Keamanan','Perubahan data sensitif','Sensitive change'], campaign: ['Ads','Review campaign','Campaign review'], package: ['Marketplace','Publikasi paket','Package publication'], branch: ['Travel','Cabang tambahan','Additional branch'], trial: ['SaaS','Request trial','Trial request'] };
-const ADMINS = ['Anda (Super Admin)','Reza — Compliance','Maya — Finance Ops','Tim Risk'];
+const ADMINS = [];
 const APPROVALS = [];
-(function () {
+const AUDIT = [];
+const NOTIFS = [];
+let AUDIT_SOURCE = 'Web · Application';
+const audit = (actor, action, resource, result, extra) => { AUDIT.unshift(Object.assign({ id: 'AUD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase(), ts: nowTs(), actor, action, resource, result, source: AUDIT_SOURCE, before: null, after: null, reason: null }, extra || {})); };
+
+function seedControlCenterData() {
+  if (ADMINS.length || APPROVALS.length || AUDIT.length || NOTIFS.length) return;
+  AUDIT_SOURCE = 'Web · Control Center';
+  ADMINS.push('Anda (Super Admin)', 'Reza — Compliance', 'Maya — Finance Ops', 'Tim Risk');
   const add = (type, o) => APPROVALS.push(Object.assign({ id: 'APR-' + String(19040 + APPROVALS.length * 11), type, domain: AP_TYPES[type][0], status: 'waiting', priority: 'p2', assignee: null, ts: T0 - ri(1, 72) * H, risk: ri(10, 45), docs: [], notes: [], history: [] }, o));
   const tr1 = TRAVELS[1], tr3 = TRAVELS.find(t => t.legal === 'under_review' && t !== tr1) || TRAVELS[5];
   add('legal_doc', { title: 'Perpanjangan izin PPIU — ' + tr1.name, requester: tr1.name, reqRef: tr1.id, reqRoute: '/travel/' + tr1.id + '/legal', priority: 'p1', risk: 34, assignee: ADMINS[1], ts: T0 - 5 * H, docs: [['PDF','SK PPIU Kemenag (perpanjangan).pdf','2,4 MB'],['PDF','Akta perubahan direksi.pdf','1,1 MB'],['JPG','Foto kantor & papan nama.jpg','3,8 MB']], ctx: [['Izin','PPIU'],['Nomor lama','U.412 TAHUN 2021'],['Berlaku s.d. (lama)','14 Okt 2026'],['Paket aktif terdampak','3 paket · 118 jamaah']], diff: null });
@@ -160,28 +168,22 @@ const APPROVALS = [];
   add('trial', { title: 'Request trial Growth — ' + TRAVELS[20].name, requester: TRAVELS[20].name, reqRef: TRAVELS[20].id, reqRoute: '/travel/' + TRAVELS[20].id + '/subscription', priority: 'p3', risk: 15, ts: T0 - 70 * H, ctx: [['Plan','Growth (14 hari)'],['Catatan','Trial hanya via request']], docs: [] });
   for (let k = 0; k < 10; k++) { const ty = pick(Object.keys(AP_TYPES)); const tr = pick(TRAVELS); add(ty, { title: AP_TYPES[ty][1] + ' — ' + tr.name, requester: tr.name, reqRef: tr.id, reqRoute: '/travel/' + tr.id, priority: wpick(['p1','p2','p3'], [15, 45, 40]), status: wpick(['waiting','in_progress','approved','rejected','needs_revision'], [40, 15, 25, 10, 10]), assignee: rnd() < .6 ? pick(ADMINS) : null, ts: T0 - ri(3, 240) * H, ctx: [['Travel ID', tr.id],['Kota', tr.city]], docs: [['PDF','Lampiran.pdf','400 KB']] }); }
   APPROVALS.forEach(a => { a.history = [{ t: 'Request diajukan oleh ' + a.requester, ts: a.ts, tone: 'info' }, { t: 'Validasi otomatis: format dokumen & kelengkapan ✓', ts: a.ts + 3 * 60e3, tone: 'ok' }]; if (a.assignee) a.history.push({ t: 'Di-assign ke ' + a.assignee, ts: a.ts + 40 * 60e3, tone: 'neu' }); if (['approved','rejected','needs_revision'].includes(a.status)) a.history.push({ t: 'Keputusan: ' + a.status, ts: a.ts + 5 * H, tone: a.status === 'approved' ? 'ok' : a.status === 'rejected' ? 'bad' : 'warn' }); });
-})();
-APPROVALS.sort((a, b) => ({ p1: 0, p2: 1, p3: 2 }[a.priority] - { p1: 0, p2: 1, p3: 2 }[b.priority]) || b.ts - a.ts);
-
-/* ---------- Audit log ---------- */
-const AUDIT = [];
-const audit = (actor, action, resource, result, extra) => { AUDIT.unshift(Object.assign({ id: 'AUD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase(), ts: nowTs(), actor, action, resource, result, source: 'Web · Control Center', before: null, after: null, reason: null }, extra || {})); };
-[['Reza — Compliance','legal.verify','Travel/' + TRAVELS[2].id + '/PPIU','success'],['Maya — Finance Ops','withdrawal.approve','Withdrawal/WD-55141','success'],['System','webhook.payment.paid','Payment/' + PAYMENTS[0].id,'success'],['System','settlement.run','Settlement/STL-2609-004','success'],['Anda (Super Admin)','role.update','Role/finance_ops','success'],['Tim Risk','travel.suspend','Travel/' + TRAVELS[9].id,'success'],['System','reconciliation.match','Batch/REC-260923','warning'],['Maya — Finance Ops','refund.reject','Refund/RF-9123','success'],['Unknown','auth.login','User/admin@segaloka','failed'],['Fikri (CS)','conversation.assign','Conversation/CNV-40127','success'],['System','campaign.status','Campaign/' + CAMPAIGNS[7].id + ' → completed','success'],['Anda (Super Admin)','payment_config.update','PaymentRouting/QRIS','success']].forEach(([a, b, c, d], i) => { audit(a, b, c, d, { ts: T0 - (i * 47 + ri(1, 40)) * 60e3, source: a === 'System' ? 'Worker · webhook-consumer' : a === 'Unknown' ? 'Web · IP 103.21.x.x' : 'Web · Control Center', before: b === 'payment_config.update' ? '{ "qris.primary": "DOKU" }' : b === 'role.update' ? '{ "refund.approve": false }' : null, after: b === 'payment_config.update' ? '{ "qris.primary": "Midtrans" }' : b === 'role.update' ? '{ "refund.approve": true }' : null, reason: b === 'travel.suspend' ? 'Subscription suspended & izin PPIU expired' : null }); });
-AUDIT.sort((a, b) => b.ts - a.ts);
-
-/* ---------- Notifications ---------- */
-const NOTIFS = [
- { cat: 'approval', tone: 'bad', title: 'Perubahan rekening berisiko tinggi', sub: 'Zamzam Barokah Travel · skor risiko 81', route: '/approval/' + APPROVALS.find(a => a.type === 'sensitive').id, ts: T0 - 38 * 60e3, unread: true },
- { cat: 'payment', tone: 'ok', title: 'Pembayaran dikonfirmasi', sub: PAYMENTS[0].id + ' · ' + PAYMENTS[0].booking, route: '/finance', ts: T0 - 52 * 60e3, unread: true },
- { cat: 'legal', tone: 'warn', title: '6 izin akan expired < 30 hari', sub: 'PPIU & BPW · lihat Legalitas', route: '/travel/legal', ts: T0 - 2 * H, unread: true },
- { cat: 'omnichannel', tone: 'info', title: '3 percakapan melewati SLA', sub: 'Inbox · antrian Unassigned', route: '/omni/inbox', ts: T0 - 3 * H, unread: true },
- { cat: 'settlement', tone: 'bad', title: 'Settlement gagal', sub: SETTLEMENTS[5] ? SETTLEMENTS[5].id + ' · rekening tujuan ditolak bank' : '', route: '/finance', ts: T0 - 5 * H, unread: false },
- { cat: 'ads', tone: 'warn', title: 'Campaign mendekati batas budget', sub: CAMPAIGNS[0].name + ' · 82% terpakai', route: '/ads/campaign/' + CAMPAIGNS[0].id, ts: T0 - 6 * H, unread: false },
- { cat: 'security', tone: 'bad', title: '14 percobaan login gagal', sub: 'admin@segaloka · IP 103.21.x.x · diblokir 30 menit', route: '/compliance/security', ts: T0 - 8 * H, unread: false },
- { cat: 'subscription', tone: 'warn', title: 'Subscription masuk Grace Period', sub: TRAVELS[4].name, route: '/travel/' + TRAVELS[4].id + '/subscription', ts: T0 - 10 * H, unread: false },
- { cat: 'booking', tone: 'info', title: 'Manifest siap diverifikasi', sub: 'Keberangkatan 12 Okt · 44 jamaah', route: '/booking/manifest', ts: T0 - 12 * H, unread: false },
- { cat: 'marketplace', tone: 'neu', title: '4 paket menunggu moderasi', sub: 'Marketplace · Moderasi Produk', route: '/marketplace/moderation', ts: T0 - 20 * H, unread: false }
-];
+  APPROVALS.sort((a, b) => ({ p1: 0, p2: 1, p3: 2 }[a.priority] - { p1: 0, p2: 1, p3: 2 }[b.priority]) || b.ts - a.ts);
+  [['Reza — Compliance','legal.verify','Travel/' + TRAVELS[2].id + '/PPIU','success'],['Maya — Finance Ops','withdrawal.approve','Withdrawal/WD-55141','success'],['System','webhook.payment.paid','Payment/' + PAYMENTS[0].id,'success'],['System','settlement.run','Settlement/STL-2609-004','success'],['Anda (Super Admin)','role.update','Role/finance_ops','success'],['Tim Risk','travel.suspend','Travel/' + TRAVELS[9].id,'success'],['System','reconciliation.match','Batch/REC-260923','warning'],['Maya — Finance Ops','refund.reject','Refund/RF-9123','success'],['Unknown','auth.login','User/admin@segaloka','failed'],['Fikri (CS)','conversation.assign','Conversation/CNV-40127','success'],['System','campaign.status','Campaign/' + CAMPAIGNS[7].id + ' → completed','success'],['Anda (Super Admin)','payment_config.update','PaymentRouting/QRIS','success']].forEach(([a, b, c, d], i) => { audit(a, b, c, d, { ts: T0 - (i * 47 + ri(1, 40)) * 60e3, source: a === 'System' ? 'Worker · webhook-consumer' : a === 'Unknown' ? 'Web · IP 103.21.x.x' : 'Web · Control Center', before: b === 'payment_config.update' ? '{ "qris.primary": "DOKU" }' : b === 'role.update' ? '{ "refund.approve": false }' : null, after: b === 'payment_config.update' ? '{ "qris.primary": "Midtrans" }' : b === 'role.update' ? '{ "refund.approve": true }' : null, reason: b === 'travel.suspend' ? 'Subscription suspended & izin PPIU expired' : null }); });
+  AUDIT.sort((a, b) => b.ts - a.ts);
+  NOTIFS.push(
+    { cat: 'approval', tone: 'bad', title: 'Perubahan rekening berisiko tinggi', sub: 'Zamzam Barokah Travel · skor risiko 81', route: '/approval/' + APPROVALS.find(a => a.type === 'sensitive').id, ts: T0 - 38 * 60e3, unread: true },
+    { cat: 'payment', tone: 'ok', title: 'Pembayaran dikonfirmasi', sub: PAYMENTS[0].id + ' · ' + PAYMENTS[0].booking, route: '/finance', ts: T0 - 52 * 60e3, unread: true },
+    { cat: 'legal', tone: 'warn', title: '6 izin akan expired < 30 hari', sub: 'PPIU & BPW · lihat Legalitas', route: '/travel/legal', ts: T0 - 2 * H, unread: true },
+    { cat: 'omnichannel', tone: 'info', title: '3 percakapan melewati SLA', sub: 'Inbox · antrian Unassigned', route: '/omni/inbox', ts: T0 - 3 * H, unread: true },
+    { cat: 'settlement', tone: 'bad', title: 'Settlement gagal', sub: SETTLEMENTS[5] ? SETTLEMENTS[5].id + ' · rekening tujuan ditolak bank' : '', route: '/finance', ts: T0 - 5 * H, unread: false },
+    { cat: 'ads', tone: 'warn', title: 'Campaign mendekati batas budget', sub: CAMPAIGNS[0].name + ' · 82% terpakai', route: '/ads/campaign/' + CAMPAIGNS[0].id, ts: T0 - 6 * H, unread: false },
+    { cat: 'security', tone: 'bad', title: '14 percobaan login gagal', sub: 'admin@segaloka · IP 103.21.x.x · diblokir 30 menit', route: '/compliance/security', ts: T0 - 8 * H, unread: false },
+    { cat: 'subscription', tone: 'warn', title: 'Subscription masuk Grace Period', sub: TRAVELS[4].name, route: '/travel/' + TRAVELS[4].id + '/subscription', ts: T0 - 10 * H, unread: false },
+    { cat: 'booking', tone: 'info', title: 'Manifest siap diverifikasi', sub: 'Keberangkatan 12 Okt · 44 jamaah', route: '/booking/manifest', ts: T0 - 12 * H, unread: false },
+    { cat: 'marketplace', tone: 'neu', title: '4 paket menunggu moderasi', sub: 'Marketplace · Moderasi Produk', route: '/marketplace/moderation', ts: T0 - 20 * H, unread: false }
+  );
+}
 
 /* ---------- Time series (30 hari) ---------- */
 const SERIES = (() => { const days = []; for (let d = 89; d >= 0; d--) { const base = 1 + Math.sin((90 - d) / 4.2) * .18 + (90 - d) / 330; days.push({ ts: T0 - d * D, gmv: Math.round((1.9 + rnd() * .7) * base * 1e9), book: Math.round((38 + rnd() * 16) * base), spend: Math.round((9 + rnd() * 5) * base * 1e6), leads: Math.round((120 + rnd() * 60) * base), conv: Math.round((140 + rnd() * 70) * base) }); } return days; })();
