@@ -30,7 +30,6 @@ registerNav([
 
 function navBadge(n) { if (!n.badge) return ''; const v = n.badge(); if (!v) return ''; return `<span class="nbadge ${n.alert ? 'alert' : 'count'}" aria-label="${v} item">${v}</span>`; }
 function renderSide() {
-  const pws = typeof wsOf === 'function' ? wsOf() : 'admin'; if (pws !== 'admin') { renderPortalSide(pws); return; }
   const act = activeNavId(S.route), an = NAVIDX[act]; const f = S.navFilter.toLowerCase();
   const match = n => !f || t(n.id).toLowerCase().includes(f) || (n.kids || []).some(k => t(k.id).toLowerCase().includes(f));
   let h = `<div class="side-head"><div class="brandmark" style="--brand:${BRAND.color}">${esc(BRAND.mark)}</div><div class="brandtext"><div class="brandname">${esc(BRAND.name)}</div><div class="brandsub">${esc(t('control_center'))}</div></div></div>
