@@ -33,3 +33,5 @@ APP.adminUI = (kind, d) => {
 };
 
 APP.documentTitle = ({ navId, nav }) => (nav ? t(navId) + ' · ' : '') + BRAND.name + ' ' + t('control_center');
+
+APP.routeScope = p => !p.startsWith('/p/');
