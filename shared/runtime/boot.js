@@ -1,5 +1,5 @@
 /* =============================== BOOT =============================== */
-applyTheme(); applyLang(); renderShell(); render();
+applyTheme(); applyLang(); APP.renderShell(); render();
 setInterval(realtime, 16000);
 sbConnect();
 
