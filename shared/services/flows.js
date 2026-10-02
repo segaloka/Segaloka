@@ -77,6 +77,7 @@ Object.assign(A, {
   'tp-edit': el => { const p = pkgById(el.dataset.id); modal({ title: L3(['Ubah paket', 'Edit package', 'تعديل']), body: fields([{ k: 'name', label: L3(['Nama paket', 'Package name', 'الاسم']), req: true, def: p.name }, { k: 'price', label: 'Harga / pax (Rp)', type: 'number', req: true, def: p.price, step: 100000 }, { k: 'seats', label: 'Seat', type: 'number', def: p.seats, min: 1 }, { k: 'dep', label: L3(['Tanggal berangkat', 'Departure date', 'تاريخ المغادرة']), type: 'date', def: new Date(p.dep).toISOString().slice(0, 10) }], 'te-'), foot: `<button class="btn" data-act="close">${t('cancel')}</button><button class="btn primary" data-act="tp-edit-go" data-id="${p.id}">${t('save')}</button>` }); },
   'tp-edit-go': el => { const p = pkgById(el.dataset.id); const v = formVals([{ k: 'name', req: true }, { k: 'price', type: 'number', req: true }, { k: 'seats', type: 'number' }, { k: 'dep' }], 'te-'); if (!v) return; Object.assign(p, { name: v.name, price: v.price, seats: Math.max(p.sold, v.seats || p.seats), dep: new Date(v.dep).getTime() }); pAudit('travel', 'package.update', 'Package/' + p.id); closeOverlays(); toast('ok', L3(['Paket diperbarui', 'Package updated', 'تم التحديث']), p.name); rerender(); }
 });
+['tp-set', 'tp-edit', 'tp-edit-go'].forEach(name => { if (!actionAllowed(name, ['travel'])) delete A[name]; });
 
 /* ================= 2) PENDAFTAR: data lengkap, bukti bayar, dokumen ================= */
 const PILGRIM_F = [['name', ['Nama sesuai paspor', 'Name as in passport', 'الاسم'], 'text', true], ['nik', ['NIK', 'National ID (NIK)', 'رقم الهوية'], 'text'], ['gender', ['Jenis kelamin', 'Gender', 'الجنس'], 'select'], ['birth', ['Tanggal lahir', 'Date of birth', 'تاريخ الميلاد'], 'date'], ['phone', ['Telepon', 'Phone', 'الهاتف'], 'tel'], ['passport', ['No. paspor', 'Passport no.', 'رقم الجواز'], 'text'], ['passportExp', ['Paspor berlaku s/d', 'Passport valid until', 'صلاحية الجواز'], 'date'], ['mahram', ['Mahram / hubungan', 'Mahram / relation', 'المحرم'], 'text']];
@@ -148,6 +149,9 @@ Object.assign(A, {
       if (b.state === 'partially_paid' && !PAYMENTS.some(y => y.booking === b.id && y.status === 'pending')) PAYMENTS.unshift({ id: uid('PAY'), booking: b.id, travel: b.travel, payer: b.traveler, amount: b.total - b.paid, provider: x.provider, channel: 'Transfer manual', ref: (x.ref || 'TRF') + '-2', status: 'pending', ts: nowTs(), recon: 'pending', flow: b.payMode, fee: 0 });
       pAudit('travel', 'payment.proof.confirm', 'Payment/' + x.id, { before: prev, after: b.state }); partyNotify([ntKey('traveler', b.traveler)], 'payment', 'ok', L3(['Pembayaran diterima', 'Payment received', 'تم استلام الدفع']), x.id + ' · ' + money(x.amount), { traveler: '/p/traveler/bookings/' + b.id }); recompute(); toast('ok', L3(['Pembayaran dikonfirmasi', 'Payment confirmed', 'تم التأكيد']), 'Booking → ' + stLbl(b.state)); rerender(); } }); }
 });
+['pg-edit', 'pg-save', 'up-doc'].forEach(name => { if (!actionAllowed(name, ['travel', 'traveler', 'mitra', 'agen'])) delete A[name]; });
+if (!actionAllowed('up-pay', ['traveler', 'mitra', 'agen'])) delete A['up-pay'];
+['up-verify', 'up-reject', 'pay-confirm'].forEach(name => { if (!actionAllowed(name, ['travel'])) delete A[name]; });
 async function doUploadDoc(b, k, i, f) { const ws = wsOf(); const who = (me(ws) || {}).name || APP.actor || 'System';
   try { toast('info', L3(['Mengunggah…', 'Uploading…', 'جارٍ الرفع…']), f.name); const old = UPLOADS.filter(u => u.booking === b.id && u.kind === k && u.pax === i); const up = await saveUpload(f, { ref: b.id, booking: b.id, traveler: b.traveler, travel: b.travel, kind: k, pax: i, by: who, byWs: ws, state: ws === 'travel' ? 'verified' : 'submitted' }); old.forEach(o => { if (o.state !== 'verified') o.state = 'replaced'; });
     UPLOADS.splice(0, UPLOADS.length, ...UPLOADS.filter(u => u.state !== 'replaced'));
@@ -166,6 +170,7 @@ async function doUploadPay(x, f) { const b = bookingById(x.booking); const ws0 =
 A['u-passport'] = async () => { const u = me('traveler'); const b = BOOKINGS.find(x => x.traveler === u.id && !BK_EXC.includes(x.state)); const f = await pickFile(); if (!f) return;
   if (b) { await doUploadDoc(b, 'passport', 0, f); u.passport = 'submitted'; rerender(); return; }
   try { await saveUpload(f, { ref: u.id, traveler: u.id, kind: 'passport', pax: 0, by: u.name, byWs: 'traveler' }); u.passport = 'submitted'; audit(u.name, 'traveler.passport.upload', 'Traveler/' + u.id, 'success', { source: 'Aplikasi Pengguna' }); toast('ok', L3(['Paspor diunggah', 'Passport uploaded', 'رُفع الجواز']), ''); rerender(); } catch (e) { toast('bad', 'Upload', String(e.message || e)); } };
+if (!actionAllowed('u-passport', ['traveler'])) delete A['u-passport'];
 
 /* ================= 3) WITHDRAWAL: aksi nyata dua arah ================= */
 const WD_FLOW = ['pending', 'approved', 'disbursed'];
