@@ -229,3 +229,5 @@ Object.assign(A, {
 (() => { const R = ROUTES.find(x => x.pattern === '/system/payment'); if (!R) return; const prev = R.fn; reroute('/system/payment', p => { const out = prev(p); if (!out || !out.html) return out; const k = out.html.indexOf('<div class="grid'); out.html = k > 0 ? out.html.slice(0, k) + gwPanel() + out.html.slice(k) : out.html; return out; }); })();
 /* admin SegaDeals: setoran menunggu dibayar (tanpa tombol konfirmasi manual) */
 (() => { const R = ROUTES.find(x => x.pattern === '/marketplace/segadeals'); if (!R) return; const prev = R.fn; reroute('/marketplace/segadeals', p => { const out = prev(p); if (out && out.html) out.html = out.html.replace(/<button class="btn sm primary"[^>]*data-act="sd-dep-ok"[^>]*>.*?<\/button>|<button class="btn sm badb"[^>]*data-act="sd-dep-no"[^>]*>.*?<\/button>/g, '').replace(L3(['Setoran deposit menunggu konfirmasi', 'Top-ups awaiting confirmation', 'بانتظار التأكيد']), L3(['Setoran deposit menunggu pembayaran (otomatis)', 'Top-ups awaiting payment (automatic)', 'بانتظار الدفع'])); return out; }); })();
+delete A['sd-dep-ok'];
+delete A['sd-dep-no'];
