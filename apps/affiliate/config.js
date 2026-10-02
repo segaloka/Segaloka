@@ -8,3 +8,5 @@ APP.accountMenu = () => portalAcctHTML();
 APP.notificationRoute = () => null;
 
 APP.documentTitle = () => BRAND.name + ' · Affiliate';
+
+APP.routeScope = p => p.startsWith('/p/affiliate');
