@@ -28,8 +28,12 @@ async function loadCanonicalStage1(ctx) {
     sql(`select id, org_id, name, is_hq, address, city, phone, pic_name, status, created_at from public.branches order by created_at`),
     sql(`select id, org_id, name, slug, type, description, duration_days, base_price, inclusions, exclusions, status, created_at, updated_at from public.packages order by created_at desc`),
     sql(`select d.id, d.package_id, p.org_id, d.departure_date, d.return_date, d.quota, d.filled, d.flight_info, d.hotel_info, d.status, d.created_at from public.departures d join public.packages p on p.id=d.package_id order by d.departure_date`),
-    sql(`select b.id, b.org_id, b.departure_id, b.code, b.traveler_user_id, b.created_by, b.pax_count, b.total_amount, b.status, b.notes, b.created_at, b.updated_at, d.package_id
-      from public.bookings b join public.departures d on d.id=b.departure_id order by b.created_at desc`),
+    sql(`select b.id, b.org_id, b.departure_id, b.code, b.traveler_user_id, b.created_by, b.pax_count, b.total_amount, b.status, b.notes, b.created_at, b.updated_at, d.package_id,
+      a.source, a.mitra_id, a.agen_id, a.affiliate_id
+      from public.bookings b
+      join public.departures d on d.id=b.departure_id
+      left join public.booking_sales_attributions a on a.booking_id=b.id
+      order by b.created_at desc`),
     sql(`select p.id, p.booking_id, b.org_id, p.provider, p.method, p.gross_amount, p.fee_amount, p.net_amount, p.external_ref, p.status, p.paid_at, p.created_at
       from public.payments p join public.bookings b on b.id=p.booking_id order by p.created_at desc`)
   ]);
@@ -74,7 +78,9 @@ async function loadCanonicalStage1(ctx) {
   replaceCanonical(BOOKINGS, bookings.map(b => ({
     id:b.id, code:b.code, travel:b.org_id, traveler:b.traveler_user_id, pkg:b.package_id, departure:b.departure_id,
     pax:Number(b.pax_count || 0), total:Number(b.total_amount || 0), paid:paidByBooking[b.id] || 0,
-    state:canonicalBookingState(b.status), notes:b.notes || '', ts:canonicalMs(b.created_at)
+    state:canonicalBookingState(b.status), notes:b.notes || '', ts:canonicalMs(b.created_at),
+    source:({ mitra:'Mitra Travel', agen:'Mitra Travel', affiliate:'Affiliate', marketplace:'Marketplace', website:'Website Travel', travel:'Travel', admin:'Admin' })[b.source] || '',
+    mitra:b.mitra_id || undefined, agen:b.agen_id || undefined, aff:b.affiliate_id || undefined
   })));
 
   replaceCanonical(PAYMENTS, payments.map(p => ({
