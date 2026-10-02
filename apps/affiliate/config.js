@@ -5,3 +5,4 @@ APP.renderSide = () => renderPortalSide('affiliate');
 APP.renderTop = () => renderPortalTop();
 APP.renderBanners = () => renderPortalBanners();
 APP.accountMenu = () => portalAcctHTML();
+APP.notificationRoute = () => null;
