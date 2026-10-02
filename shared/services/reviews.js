@@ -68,7 +68,7 @@ Object.assign(A, {
     const anchor = '<div class="field" style="margin-top:14px"><label for="u-pax">'; out.html = out.html.replace(anchor, blk + anchor); return out; }); })();
 
 /* portal Travel: ulasan */
-PNAV.travel.splice(PNAV.travel.findIndex(x => x[2] === '/finance'), 0, ['star', ['Ulasan', 'Reviews', 'التقييمات'], '/reviews']);
+if (routeAllowed('/p/travel/reviews')) PNAV.travel.splice(PNAV.travel.findIndex(x => x[2] === '/finance'), 0, ['star', ['Ulasan', 'Reviews', 'التقييمات'], '/reviews']);
 route('/p/travel/reviews', () => { const tr = me('travel'); const L = REVIEWS.filter(r => r.travel === tr.id).sort((a, b) => b.ts - a.ts); const P = L.filter(r => r.state !== 'hidden');
   return { html: `<div class="page">${pHead('travel', L3(['Ulasan', 'Reviews', 'التقييمات']), L3(['Ulasan dari jamaah yang sudah berangkat. Balasan Anda tampil publik di bawah ulasan.', 'Reviews from pilgrims who have departed. Your replies are shown publicly under each review.', 'تقييمات المعتمرين.']))}
   ${kpiRow([{ k: L3(['Rating Travel', 'Travel rating', 'تقييم الشركة']), v: P.length ? avgOf(P, 'rTravel') + ' / 5' : '—', icon: 'star' }, { k: L3(['Rating paket', 'Package rating', 'تقييم الباقات']), v: P.length ? avgOf(P, 'rPkg') + ' / 5' : '—', icon: 'package' }, { k: L3(['Jumlah ulasan', 'Reviews', 'العدد']), v: fN(P.length), icon: 'msg' }, { k: L3(['Belum dibalas', 'Awaiting reply', 'بلا رد']), v: fN(P.filter(r => !r.reply).length), icon: 'clock' }])}
