@@ -10,3 +10,5 @@ APP.notificationRoute = () => null;
 APP.documentTitle = () => BRAND.name + ' · Mitra Travel';
 
 APP.routeScope = p => p.startsWith('/p/mitra');
+
+APP.actionScope = (name, scopes) => !scopes.length || scopes.includes('mitra');
