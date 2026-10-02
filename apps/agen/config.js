@@ -10,3 +10,5 @@ APP.notificationRoute = () => null;
 APP.documentTitle = () => BRAND.name + ' · Agen';
 
 APP.routeScope = p => p.startsWith('/p/agen');
+
+APP.actionScope = (name, scopes) => !scopes.length || scopes.includes('agen');
