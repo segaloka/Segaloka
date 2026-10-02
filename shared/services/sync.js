@@ -23,7 +23,12 @@ function replaceInPlace(o, d) { Object.keys(o).forEach(k => delete o[k]); Object
 function applyRows(rows, remote) { let changed = 0; const by = {}; rows.forEach(r => (by[r.c] = by[r.c] || []).push(r)); ALLC().forEach(([name, get]) => { const L = by[name]; if (!L) return; const arr = get(); const idx = new Map(arr.map(o => [o.id, o])); SB.saved[name] = SB.saved[name] || {}; if (!remote) { arr.length = 0; L.forEach(r => { arr.push(r.data); SB.saved[name][r.id] = snap(r.data); }); changed += L.length; return; } L.forEach(r => { const cur = idx.get(r.id); const j = snap(r.data); if (cur) { if (snap(cur) === SB.saved[name][r.id] && snap(cur) !== j) { const before = JSON.parse(snap(cur)); replaceInPlace(cur, r.data); SB.saved[name][r.id] = j; changed++; SB.changes.push({ name, id: r.id, before, after: r.data }); } } else { arr.unshift(r.data); SB.saved[name][r.id] = j; changed++; SB.changes.push({ name, id: r.id, before: null, after: r.data }); } }); }); return changed; }
 const auditFromRow = r => ({ id: r.id, ts: +r.t, actor: r.actor, action: r.action, resource: r.resource, result: r.result, source: r.source, before: r.before, after: r.after, reason: r.reason });
 async function sbLoad() {
-  if (APP.dataBackend !== 'legacy') throw new Error('canonical_backend_requires_adapter');
+  if (APP.dataBackend !== 'legacy') {
+    if (!APP.canonicalLoad) throw new Error('canonical_backend_requires_adapter');
+    await APP.canonicalLoad({ sql, applyRows, auditFromRow, SB });
+    syncTpl(); SB.lastPoll = Date.now();
+    return;
+  }
   const core = Object.keys(CORE).map(k => `select '${k}' as c, id, data from control_center.${k}`).join(' union all ');
   const [a, b, c, d, pr] = await Promise.all([sql(core), sql(`select collection as c, id, data from control_center.records`), sql(`select key, value from control_center.settings`), sql(`select id, (extract(epoch from ts)*1000)::bigint as t, actor, action, resource, result, source, before, after, reason from control_center.audit_log where not is_demo order by ts desc limit 400`), sql(PROBE_SQL()).catch(() => [])]);
   SB.seen = +((pr && pr[0] && pr[0].m) || 0);
@@ -46,7 +51,11 @@ function buildFlush() {
   return { stmts, commit };
 }
 async function sbFlush() {
-  if (!SB.on) return; if (SB.busy) { SB.again = true; return; }
+  if (!SB.on) return;
+  if (APP.dataBackend !== 'legacy') {
+    if (APP.canonicalFlush) await APP.canonicalFlush({ sql, SB });
+    return;
+  } if (SB.busy) { SB.again = true; return; }
   const { stmts, commit } = buildFlush(); if (!stmts.length) return;
   SB.busy = true; SB.state = 'saving'; paintSync();
   try { await sql('begin; ' + stmts.join('; ') + '; commit;'); commit.forEach(f => f()); SB.state = 'saved'; SB.lastSave = Date.now(); SB.err = null; rtEmit(stmts.length); }
@@ -56,7 +65,12 @@ async function sbFlush() {
 async function sbPoll(force) {
   if (!SB.on || SB.busy || (document.hidden && !force) || SB.polling) return; SB.polling = true; try { await sbPollInner(); } finally { SB.polling = false; }
 }
-async function sbPollInner() { if (APP.dataBackend !== 'legacy') return; const since = SB.lastPoll - 5000; const ts = `to_timestamp(${since / 1000})`;
+async function sbPollInner() {
+  if (APP.dataBackend !== 'legacy') {
+    if (APP.canonicalPoll) await APP.canonicalPoll({ sql, SB });
+    return;
+  }
+  const since = SB.lastPoll - 5000; const ts = `to_timestamp(${since / 1000})`;
   try { const q = Object.keys(CORE).map(k => `select '${k}' as c, id, data from control_center.${k} where updated_at > ${ts}`).join(' union all ') + ` union all select collection, id, data from control_center.records where updated_at > ${ts}`; const [rows, aud, sets] = await Promise.all([sql(q), sql(`select id, (extract(epoch from ts)*1000)::bigint as t, actor, action, resource, result, source, before, after, reason from control_center.audit_log where inserted_at > ${ts} order by ts desc`), sql(`select key, value from control_center.settings where updated_at > ${ts}`)]);
     SB.lastPoll = Date.now(); let n = applyRows(rows, true); aud.forEach(r => { if (!SB.auditSaved.has(r.id)) { AUDIT.unshift(auditFromRow(r)); SB.auditSaved.add(r.id); n++; } }); AUDIT.sort((a, b) => b.ts - a.ts);
     sets.forEach(r => { if (SETS[r.key] && snap(SETS[r.key][0]()) === SB.savedSet[r.key]) { SETS[r.key][1](r.value); SB.savedSet[r.key] = snap(SETS[r.key][0]()); n++; } });
