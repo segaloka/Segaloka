@@ -1,7 +1,7 @@
 /* ======================= STATE ======================= */
 const A = {}; // action registry (data-act → handler)
 const store = { get(k, d) { try { const v = localStorage.getItem('sg.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('sg.' + k, JSON.stringify(v)); } catch (e) {} } };
-const APP = { home: '/overview', actor: 'Admin Pusat' };
+const APP = { home: '/overview', actor: 'Admin Pusat', renderSide: null, renderTop: null, renderBanners: null, accountMenu: null };
 const S = { lang: store.get('lang', 'id'), theme: store.get('theme', 'system'), collapsed: store.get('collapsed', false), openG: new Set(store.get('openG', [])), openM: new Set(store.get('openM', [])), role: store.get('role', 'super_admin'), ux: 'normal', route: APP.home, navFilter: '' };
 
 /* ======================= PERMISSION (backend-provided) =======================
@@ -122,7 +122,7 @@ function renderShell() {
     </div>
   </div>
   <div id="ovl"></div><div class="toasts" id="toasts" aria-live="polite"></div>`;
-  renderSide(); renderTop(); renderBanners();
+  APP.renderSide(); APP.renderTop(); APP.renderBanners();
 }
 function hijri() { try { return new Intl.DateTimeFormat((S.lang === 'ar' ? 'ar-SA' : S.lang === 'en' ? 'en' : 'id') + '-u-ca-islamic-umalqura-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }).format(nowTs()); } catch (e) { return ''; } }
 /* ======================= ROUTER ======================= */
@@ -148,7 +148,7 @@ function render() {
   else if (nav && nav.r === path) { const res = PAGES.placeholder(navId); html = res.html; mount = res.mount; }
   else { html = `<div class="page">${stateBlock('noresult', { title: '404', desc: 'Route tidak ditemukan: ' + S.route })}</div>`; }
   w.innerHTML = html; w.scrollTop = 0; pageMount = mount; if (mount) mount();
-  renderSide(); renderTop(); document.getElementById('app').classList.remove('drawer-open');
+  APP.renderSide(); APP.renderTop(); document.getElementById('app').classList.remove('drawer-open');
   document.title = (path.startsWith('/p/') ? wsLabel(wsOf()) : (nav ? t(navId) + ' · ' : '') + BRAND.name + ' ' + t('control_center'));
 }
 function rerender() { const w = document.getElementById('work'); const st = w.scrollTop; render(); w.scrollTop = st; }
@@ -248,6 +248,6 @@ function realtime() {
   if (kind === 'approval') { const tr = pick(TRAVELS); const a = { id: 'APR-' + (19900 + rtTick), type: 'legal_doc', domain: 'Legalitas', title: 'Dokumen BPW diperbarui — ' + tr.name, requester: tr.name, reqRef: tr.id, reqRoute: '/travel/' + tr.id + '/legal', status: 'waiting', priority: 'p2', assignee: null, ts: nowTs(), risk: ri(10, 40), docs: [['PDF', 'Sertifikat BPW.pdf', '700 KB']], ctx: [['Travel ID', tr.id], ['Izin', 'BPW']], notes: [], history: [{ t: 'Request diajukan oleh ' + tr.name, ts: nowTs(), tone: 'info' }], fresh: true }; APPROVALS.unshift(a); NOTIFS.unshift({ cat: 'approval', tone: 'info', title: L3(['Approval baru masuk', 'New approval request', 'طلب موافقة جديد']), sub: a.title, route: '/approval/' + a.id, ts: nowTs(), unread: true }); toast('info', L3(['Approval baru masuk', 'New approval request', 'طلب موافقة جديد']), a.title, '/approval/' + a.id); if (S.route.startsWith('/approval') && window.APV) APV.refreshList(); }
   if (kind === 'payment') { const p = PAYMENTS.find(x => x.status === 'pending'); if (!p) return; p.status = 'paid'; p.recon = 'pending'; p.fresh = nowTs(); const b = bookingById(p.booking); if (b && b.state === 'awaiting_payment') b.state = 'partially_paid'; NOTIFS.unshift({ cat: 'payment', tone: 'ok', title: L3(['Pembayaran dikonfirmasi', 'Payment confirmed', 'تم تأكيد الدفع']), sub: p.id + ' · ' + money(p.amount), route: '/finance/payment/' + p.id, ts: nowTs(), unread: true }); toast('ok', L3(['Pembayaran dikonfirmasi (webhook)', 'Payment confirmed (webhook)', 'تم تأكيد الدفع']), p.id + ' · ' + money(p.amount) + ' · ' + p.provider, '/finance/payment/' + p.id); audit('System', 'webhook.payment.paid', 'Payment/' + p.id, 'success', { source: 'Worker · webhook-consumer' }); if (S.route === '/finance' || S.route === '/finance/transactions') { if (TBL.fintx) refreshTable('fintx'); if (TBL.tx) refreshTable('tx'); const row = document.querySelector(`tr[data-row="${p.id}"]`); if (row) row.classList.add('flash'); const u = document.getElementById('fin-upd'); if (u) u.textContent = t('updated') + ' ' + t('just_now'); } }
   if (kind === 'message') { const c = CONVERSATIONS.find(x => x.status !== 'closed' && x.status !== 'resolved' && x.id !== (window.OMNI && OMNI.active)) || CONVERSATIONS[0]; const texts = ['Kak, mohon info lanjutannya ya 🙏', 'Apakah bisa dibantu hari ini?', 'Baik, saya tunggu kabarnya.', 'Untuk pembayaran pelunasan bisa via QRIS?']; c.messages.push({ dir: 'in', text: pick(texts), ts: nowTs() }); c.ts = nowTs(); c.unread++; if (c.status === 'pending') c.status = 'open'; if (window.OMNI && S.route.startsWith('/omni/inbox')) OMNI.onIncoming(c); else toast('info', L3(['Pesan baru', 'New message', 'رسالة جديدة']) + ' · ' + c.contact, c.messages[c.messages.length - 1].text, '/omni/inbox/' + c.id); }
-  renderTop(); updateSideBadges();
+  APP.renderTop(); updateSideBadges();
 }
-function updateSideBadges() { const sc = document.querySelector('.side-scroll'); const st = sc ? sc.scrollTop : 0; renderSide(); const n = document.querySelector('.side-scroll'); if (n) n.scrollTop = st; const b = document.querySelector('#bellbtn .nbadge'); if (b) b.classList.add('pulse'); }
+function updateSideBadges() { const sc = document.querySelector('.side-scroll'); const st = sc ? sc.scrollTop : 0; APP.renderSide(); const n = document.querySelector('.side-scroll'); if (n) n.scrollTop = st; const b = document.querySelector('#bellbtn .nbadge'); if (b) b.classList.add('pulse'); }
