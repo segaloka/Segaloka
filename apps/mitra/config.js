@@ -1,3 +1,4 @@
+APP.renderShell = () => renderShell();
 APP.home = '/p/mitra';
 APP.actor = 'Mitra Travel';
 APP.renderSide = () => renderPortalSide('mitra');
