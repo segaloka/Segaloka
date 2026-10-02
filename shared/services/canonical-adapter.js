@@ -181,10 +181,21 @@ async function canonicalInviteAgen(input) {
 }
 
 
+async function canonicalSetAgenStatus(input) {
+  const q = `select public.set_agen_status(${sqlLiteral(input.agenId)}::uuid, ${sqlLiteral(input.status)}) as result`;
+  const rows = await sql(q);
+  const result = rows && rows[0] ? rows[0].result : null;
+  if (!result || !result.ok) return result || { ok:false, reason:'unknown' };
+  await loadCanonicalStage1({ sql, SB });
+  return result;
+}
+
+
 function installCanonicalStage1() {
   APP.dataBackend = 'canonical';
   APP.canonicalLoad = loadCanonicalStage1;
   APP.canonicalPoll = loadCanonicalStage1;
   APP.canonicalFlush = null;
   APP.canonicalInviteAgen = canonicalInviteAgen;
+  APP.canonicalSetAgenStatus = canonicalSetAgenStatus;
 }
