@@ -19,6 +19,7 @@ APP.notificationRoute = (kind, d) => ({
   'segadeals.offer.new': '/marketplace/segadeals',
   'segadeals.offer.accepted': '/marketplace/segadeals',
   'withdrawal.new': '/finance/withdrawal',
+  'withdrawal.admin': d.after ? '/finance/withdrawal/' + d.after.id : '/finance/withdrawal',
   'package.state': d.after.state === 'review' ? '/marketplace/moderation' : null
 }[kind] || null);
 
