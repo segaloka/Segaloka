@@ -1,7 +1,8 @@
 /* ======================= STATE ======================= */
 const A = {}; // action registry (data-act → handler)
 const store = { get(k, d) { try { const v = localStorage.getItem('sg.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('sg.' + k, JSON.stringify(v)); } catch (e) {} } };
-const S = { lang: store.get('lang', 'id'), theme: store.get('theme', 'system'), collapsed: store.get('collapsed', false), openG: new Set(store.get('openG', [])), openM: new Set(store.get('openM', [])), role: store.get('role', 'super_admin'), ux: 'normal', route: '/overview', navFilter: '' };
+const APP = { home: '/overview', actor: 'Admin Pusat' };
+const S = { lang: store.get('lang', 'id'), theme: store.get('theme', 'system'), collapsed: store.get('collapsed', false), openG: new Set(store.get('openG', [])), openM: new Set(store.get('openM', [])), role: store.get('role', 'super_admin'), ux: 'normal', route: APP.home, navFilter: '' };
 
 /* ======================= PERMISSION (backend-provided) =======================
    UI hanya merepresentasikan permission yang dikirim backend.
@@ -131,8 +132,8 @@ let pageMount = null;
 function go(r) { if (location.hash !== '#' + r) location.hash = r; else render(); }
 function render() {
   if (typeof recompute === 'function') recompute();
-  { const pth = (location.hash.slice(1) || '/overview').split('?')[0]; const i = RECENT.indexOf(pth); if (i >= 0) RECENT.splice(i, 1); RECENT.unshift(pth); RECENT.length = Math.min(RECENT.length, 8); }
-  S.route = (location.hash.replace(/^#/, '') || '/overview'); if (!S.route.startsWith('/')) S.route = '/overview';
+  { const pth = (location.hash.slice(1) || APP.home).split('?')[0]; const i = RECENT.indexOf(pth); if (i >= 0) RECENT.splice(i, 1); RECENT.unshift(pth); RECENT.length = Math.min(RECENT.length, 8); }
+  S.route = (location.hash.replace(/^#/, '') || APP.home); if (!S.route.startsWith('/')) S.route = APP.home;
   closeOverlays(); const w = document.getElementById('work');
   const navId = activeNavId(S.route.split('?')[0]); const nav = NAVIDX[navId];
   let out = null; const path = S.route.split('?')[0];
@@ -141,7 +142,7 @@ function render() {
   else if (!routeNav[path]) for (const rt of ROUTES) { const m = path.match(rt.re); if (m) { const params = {}; rt.keys.forEach((k, i) => params[k] = decodeURIComponent(m[i + 1])); out = { rt, params }; break; } }
   let html, mount;
   const perm = S.route === '/ia' ? 'iamap.view' : path.startsWith('/p/') ? null : nav ? nav.p : null;
-  if (!can(perm) && S.route !== '/ia') { html = `<div class="page">${crumbs([[BRAND.name, '/overview'], [t(navId), S.route]])}<div class="panel" style="margin-top:12px">${stateBlock('noperm')}<div style="text-align:center;padding-bottom:20px" class="muted mono">required: ${esc(perm)} · route: ${esc(S.route)}</div></div></div>`; }
+  if (!can(perm) && S.route !== '/ia') { html = `<div class="page">${crumbs([[BRAND.name, APP.home], [t(navId), S.route]])}<div class="panel" style="margin-top:12px">${stateBlock('noperm')}<div style="text-align:center;padding-bottom:20px" class="muted mono">required: ${esc(perm)} · route: ${esc(S.route)}</div></div></div>`; }
   else if (path.startsWith('/p/') && typeof portalEmpty === 'function' && WS[wsOf(path)] && !me(wsOf(path))) { const res = portalEmpty(wsOf(path)); html = res.html; mount = res.mount; }
   else if (out) { try { const res = out.rt.fn(out.params); html = res.html; mount = res.mount; } catch (e) { console.warn('route', path, e); html = `<div class="page"><div class="panel" style="margin-top:12px">${stateBlock('empty')}</div></div>`; mount = null; } }
   else if (nav && nav.r === path) { const res = PAGES.placeholder(navId); html = res.html; mount = res.mount; }
@@ -163,7 +164,7 @@ let confirmCb = null;
 function confirmAction({ title, desc, tone = 'primary', label, reason = true, resource, onOk }) {
   if (S.ux === 'offline') { toast('warn', L3(['Aksi ditunda', 'Action paused', 'تم إيقاف الإجراء']), t('offline_b')); return; }
   confirmCb = onOk;
-  modal({ title, body: `${desc ? `<p style="margin:0 0 12px;color:var(--ink-2)">${desc}</p>` : ''}${resource ? `<div class="chip mono" style="margin-bottom:12px">${esc(resource)}</div>` : ''}${reason ? `<div class="field"><label for="cf-reason">${t('reason')} *</label><textarea id="cf-reason" placeholder="${esc(t('reason_req'))}"></textarea><span class="hint" id="cf-hint">${t('reason_req')}</span></div>` : ''}<div class="auditbox">${ic('history')}<div><b>${esc(L3(['Jejak audit', 'Audit trail', 'سجل التدقيق']))}</b><br>${esc(t('audit_note'))}<br><span class="mono">actor: Admin Pusat (${esc(ROLES[S.role].label)}) · source: Web · ${esc(fDT(nowTs()))}</span></div></div>`,
+  modal({ title, body: `${desc ? `<p style="margin:0 0 12px;color:var(--ink-2)">${desc}</p>` : ''}${resource ? `<div class="chip mono" style="margin-bottom:12px">${esc(resource)}</div>` : ''}${reason ? `<div class="field"><label for="cf-reason">${t('reason')} *</label><textarea id="cf-reason" placeholder="${esc(t('reason_req'))}"></textarea><span class="hint" id="cf-hint">${t('reason_req')}</span></div>` : ''}<div class="auditbox">${ic('history')}<div><b>${esc(L3(['Jejak audit', 'Audit trail', 'سجل التدقيق']))}</b><br>${esc(t('audit_note'))}<br><span class="mono">actor: ${esc(APP.actor)} (${esc(ROLES[S.role].label)}) · source: Web · ${esc(fDT(nowTs()))}</span></div></div>`,
     foot: `<button class="btn" data-act="close">${t('cancel')}</button><button class="btn ${tone}" data-act="confirm-ok" data-need="${reason ? 1 : 0}">${esc(label || t('confirm'))}</button>` });
 }
 function toast(tone, title, sub, link) { const id = 'ts' + Math.random().toString(36).slice(2, 7); const el = document.createElement('div'); el.className = 'toast'; el.id = id; el.setAttribute('role', tone === 'bad' ? 'alert' : 'status'); el.innerHTML = `<span class="tic ${tone}">${ic(tone === 'ok' ? 'check' : tone === 'bad' ? 'alert' : tone === 'warn' ? 'alert' : 'info', 'sm')}</span><div class="tb"><b>${esc(title)}</b>${sub ? `<div class="ts">${esc(sub)}</div>` : ''}${link ? `<a href="#${link}">${esc(t('open_detail'))} →</a>` : ''}</div><button data-act="toast-x" aria-label="${t('close')}" style="color:inherit;opacity:.6">${ic('x', 'sm')}</button>`; const box = document.getElementById('toasts'); box.appendChild(el); while (box.children.length > 4) box.firstElementChild.remove(); setTimeout(() => el.remove(), 6500); }
