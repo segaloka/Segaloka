@@ -41,4 +41,7 @@ A['sd-topup-go'] = async el => { const tr = me('travel'); const need = +el.datas
 
 /* subscription Travel: dibayar lewat gateway, aktif otomatis */
 A['ts-pay'] = async () => { const tr = me('travel'); if (!tr || !tr.sub) return; pAudit('travel', 'subscription.checkout', 'Travel/' + tr.id, { after: money(tr.sub.price) }); await gwCheckout('subscription', tr.id, tr.sub.price); };
+if (!actionAllowed('pay-go', ['traveler', 'mitra', 'agen'])) delete A['pay-go'];
+if (!actionAllowed('pay-open', ['traveler', 'travel', 'mitra', 'agen'])) delete A['pay-open'];
+['sd-topup', 'sd-topup-go', 'ts-pay'].forEach(name => { if (!actionAllowed(name, ['travel'])) delete A[name]; });
 delete A['u-pay'];
