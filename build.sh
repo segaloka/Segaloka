@@ -73,3 +73,16 @@ build_bundle traveler "SEGALOKA Traveler" apps/traveler/config.js apps/traveler/
 build_bundle affiliate "SEGALOKA Affiliate" apps/affiliate/config.js apps/affiliate/portal.js
 build_bundle mitra "SEGALOKA Mitra Travel" apps/mitra/config.js apps/mitra/portal.js shared/partner-agent-portal.js
 build_bundle agen "SEGALOKA Agen" apps/agen/config.js apps/agen/portal.js shared/partner-agent-portal.js
+
+
+# Vercel/static deployment output. Keep standalone root HTML files for local QA.
+rm -rf dist
+mkdir -p dist
+cp segaloka-control-center.html dist/index.html
+cp segaloka-control-center.html dist/control-center.html
+cp segaloka-travel.html dist/travel.html
+cp segaloka-vendor.html dist/vendor.html
+cp segaloka-traveler.html dist/traveler.html
+cp segaloka-affiliate.html dist/affiliate.html
+cp segaloka-mitra.html dist/mitra.html
+cp segaloka-agen.html dist/agen.html
