@@ -31,3 +31,5 @@ APP.adminUI = (kind, d) => {
   if (kind === 'segadeals.travel.actions') { const tr = d.travel; return permBtn('marketplace.manage', L3(['Biaya', 'Fee', 'الرسوم']), 'data-act="sd-trfee" data-id="' + tr.id + '" data-mut', 'sm') + permBtn('marketplace.manage', tr.sdTerms.revoked ? L3(['Pulihkan', 'Restore', 'استعادة']) : L3(['Cabut', 'Revoke', 'إلغاء']), 'data-act="sd-revoke" data-id="' + tr.id + '" data-mut', 'sm ' + (tr.sdTerms.revoked ? '' : 'badb')); }
   return '';
 };
+
+APP.documentTitle = ({ navId, nav }) => (nav ? t(navId) + ' · ' : '') + BRAND.name + ' ' + t('control_center');
