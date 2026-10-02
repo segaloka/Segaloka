@@ -143,3 +143,22 @@ function controlCenterRealtime() {
   APP.renderTop(); updateSideBadges();
 }
 
+
+/* ======================= CONTROL CENTER SEARCH ======================= */
+const CONTROL_CENTER_SEARCH_SCOPES = [['all', 'f_all'], ['travel', 'Travel'], ['vendor', 'Vendor'], ['affiliate', 'Affiliate'], ['traveler', 'Traveler'], ['booking', 'Booking'], ['tx', 'Transaksi'], ['package', 'Paket'], ['campaign', 'Campaign'], ['page', 'Menu']];
+function controlCenterSearchIndex() {
+  return [
+    ...TRAVELS.map(x => ({ type: 'travel', icon: 'building', title: x.name, sub: x.id + ' · ' + x.city, r: '/travel/' + x.id, s: x.name + ' ' + x.id + ' ' + x.city })),
+    ...VENDORS.map(x => ({ type: 'vendor', icon: 'store', title: x.name, sub: x.id + ' · ' + x.cats.join(', '), r: '/vendor/' + x.id, s: x.name + ' ' + x.id + ' ' + x.cats.join(' ') })),
+    ...AFFILIATES.map(x => ({ type: 'affiliate', icon: 'link', title: x.name, sub: x.id + ' · kode ' + x.code, r: '/affiliate', s: x.name + ' ' + x.id + ' ' + x.code })),
+    ...TRAVELERS.map(x => ({ type: 'traveler', icon: 'user', title: x.name, sub: x.id + ' · ' + x.city, r: '/traveler', s: x.name + ' ' + x.id + ' ' + x.phone })),
+    ...BOOKINGS.map(x => ({ type: 'booking', icon: 'calendar', title: x.id, sub: (TRAVELERS.find(v => v.id === x.traveler) || {}).name + ' · ' + (PACKAGES.find(p => p.id === x.pkg) || {}).name, r: '/booking/' + x.id, s: x.id + ' ' + (TRAVELERS.find(v => v.id === x.traveler) || {}).name })),
+    ...PAYMENTS.map(x => ({ type: 'tx', icon: 'repeat', title: x.id, sub: money(x.amount) + ' · ' + x.provider + ' · ' + x.ref, r: '/finance/payment/' + x.id, s: x.id + ' ' + x.ref + ' ' + x.booking })),
+    ...PACKAGES.map(x => ({ type: 'package', icon: 'package', title: x.name, sub: x.id + ' · ' + travelById(x.travel).name, r: '/marketplace/packages', s: x.name + ' ' + x.id + ' ' + travelById(x.travel).name })),
+    ...CAMPAIGNS.map(x => ({ type: 'campaign', icon: 'target', title: x.name, sub: x.id + ' · ' + L3(STATUS[x.state].slice(2)), r: '/ads/campaign/' + x.id, s: x.name + ' ' + x.id })),
+    ...Object.values(NAVIDX).filter(n => n.r && can(n.p)).map(n => ({ type: 'page', icon: n.i, title: t(n.id), sub: navTrail(n.id).map(x => x[0]).join(' › '), r: n.r, s: t(n.id) + ' ' + t(n.g) }))
+  ];
+}
+APP.searchScopes = () => CONTROL_CENTER_SEARCH_SCOPES;
+APP.searchIndex = () => controlCenterSearchIndex();
+APP.searchRecent = () => ['/approval', '/omni/inbox', '/finance'];
