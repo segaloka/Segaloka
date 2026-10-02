@@ -8,3 +8,5 @@ APP.accountMenu = () => portalAcctHTML();
 APP.notificationRoute = () => null;
 
 APP.documentTitle = () => BRAND.name + ' · Vendor';
+
+APP.routeScope = p => p.startsWith('/p/vendor');
