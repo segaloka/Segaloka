@@ -8,5 +8,5 @@ cat shared/i18n/i18n.js shared/data/data.js shared/runtime/core.js apps/control-
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
 H
-cat styles.css; echo '</style>'; echo '<div id="root" style="height:100%"></div>'; echo '<script>'; cat _all.js; echo '</script>'; } > segaloka-control-center.html
+cat shared/styles/styles.css; echo '</style>'; echo '<div id="root" style="height:100%"></div>'; echo '<script>'; cat _all.js; echo '</script>'; } > segaloka-control-center.html
 wc -c segaloka-control-center.html
