@@ -9,7 +9,7 @@ Setiap dashboard dibangun sebagai HTML mandiri (vanilla JS, tanpa framework), se
 |---|---|
 | Shell | Sidebar 3 level (Group → Module → Submodule), ID / EN / AR (RTL), tema Terang / Gelap / Sistem, pencarian global (Ctrl K), notifikasi, simulasi permission |
 | Admin | Overview, Approval Center, Ekosistem, Marketplace, Omnichannel, Ads & Promotion, Booking & Operasional, Keuangan, SaaS, Platform, Compliance & Security, Analytics, System (165 route) |
-| Portal | Travel, Vendor, Aplikasi Pengguna (mobile), Affiliate, Mitra Travel, Agen, dengan mode "masuk sebagai" |
+| Runtime role | Control Center, Travel, Vendor, Traveler, Affiliate, Mitra, dan Agen dibuild/deploy sebagai entry terpisah |
 | Data | Schema `control_center` di Supabase (dibuat otomatis oleh halaman), audit log append-only, realtime antar-layar |
 
 ### Aturan bisnis yang dijaga
