@@ -51,7 +51,7 @@ tests/             E2E (Supabase/Postgres) + crawler yang mengklik semua aksi
 bash build.sh        # menghasilkan Control Center + Travel + Vendor + Traveler + Affiliate + Mitra + Agen
 ```
 
-Catatan: path di `build.sh` diawali `cd /home/claude/sg`. Ubah ke folder repo Anda bila perlu.
+`build.sh` berjalan relatif terhadap lokasi repository, jadi tidak bergantung pada path mesin tertentu.
 
 ## Omnichannel (koneksi nyata)
 
@@ -80,7 +80,9 @@ Inbox (balas) → control_center.omni_outbox → trigger pg_net → Edge Functio
 
 ```bash
 npm i -g playwright
-# 0) Pastikan 7 bundle dashboard dapat boot terpisah dan tidak membawa route portal role lain\nnode tests/bundle-smoke.js\n# 1) Semua route + klik setiap aksi; cek error JS, teks undefined/NaN, dan overflow horizontal
+# 0) Pastikan 7 bundle dashboard dapat boot terpisah dan tidak membawa route portal role lain
+node tests/bundle-smoke.js
+# 1) Semua route + klik setiap aksi; cek error JS, teks undefined/NaN, dan overflow horizontal
 W=390 node tests/crawl-all-actions.js            # produksi, mobile
 W=1440 Q='?demo' node tests/crawl-all-actions.js # demo, desktop
 # 2) E2E produksi multi-layar dengan Postgres lokal (socket /tmp/pgd, port 55432) yang meniru connector Supabase:
@@ -111,7 +113,7 @@ Hasil terakhir: E2E produksi 34/34 lulus di 1440px dan 390px. Crawler tanpa erro
 - SQL: `pay/gateway_core.sql` (tabel `pay_outbox`, fungsi `sg_gateway_paid/failed`, `sg_notify`) + `pay/gateway_live.sql` (trigger pg_net & Vault). Kunci diisi di Control Center › System › Payment.
 
 ## Deploy
-1. `bash build.sh` → menghasilkan `segaloka-control-center.html` (satu file, siap dibuka/di-host).
+1. `bash build.sh` → menghasilkan tujuh HTML mandiri: Control Center, Travel, Vendor, Traveler, Affiliate, Mitra Travel, dan Agen.
 2. Database: `migration.sql`, `omni/migration_omni.sql`, `pay/gateway_core.sql`, `pay/gateway_live.sql` (idempoten).
 3. Edge Functions: `omni/functions/omni`, `pay/functions/pay` (verify_jwt = false; autentikasi lewat signature/kunci).
 4. Tes: `tests/e2e-production.js`, `tests/e2e-omni.js`, `tests/crawl-all-actions.js` (butuh Postgres lokal + Playwright).
