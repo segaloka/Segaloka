@@ -1,7 +1,7 @@
 /* ======================= STATE ======================= */
 const A = {}; // action registry (data-act → handler)
 const store = { get(k, d) { try { const v = localStorage.getItem('sg.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('sg.' + k, JSON.stringify(v)); } catch (e) {} } };
-const APP = { home: '/overview', actor: 'System', renderShell: null, renderSide: null, renderTop: null, renderBanners: null, accountMenu: null, closeContext: null, afterPoll: null, conversationChanged: null, realtimeTick: null, searchScopes: null, searchIndex: null, searchRecent: null, notificationRoute: null };
+const APP = { home: '/overview', actor: 'System', renderShell: null, renderSide: null, renderTop: null, renderBanners: null, accountMenu: null, closeContext: null, afterPoll: null, conversationChanged: null, realtimeTick: null, searchScopes: null, searchIndex: null, searchRecent: null, notificationRoute: null, adminUI: null };
 const S = { lang: store.get('lang', 'id'), theme: store.get('theme', 'system'), collapsed: store.get('collapsed', false), openG: new Set(store.get('openG', [])), openM: new Set(store.get('openM', [])), role: store.get('role', 'system'), ux: 'normal', route: APP.home, navFilter: '' };
 
 /* ======================= PERMISSION (backend-provided) =======================
@@ -13,6 +13,7 @@ function registerRoles(roles) { Object.keys(ROLES).forEach(k => delete ROLES[k])
 function can(p) { if (!p) return true; const role = ROLES[S.role] || ROLES.system; const ps = role ? role.perms : []; if (ps.includes('*') || ps.includes(p)) return true; const base = p.split(/[.:]/)[0]; return ps.includes(base + '.*'); }
 
 function notificationRoute(kind, data) { return APP.notificationRoute ? APP.notificationRoute(kind, data || {}) : null; }
+function adminUI(kind, data) { return APP.adminUI ? APP.adminUI(kind, data || {}) : ''; }
 function roleLabel() { const role = ROLES[S.role] || ROLES.system; return role ? role.label : APP.actor; }
 
 let PERIOD = 30; const ser = () => SERIES.slice(-PERIOD);
