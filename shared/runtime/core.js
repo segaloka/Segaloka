@@ -14,6 +14,7 @@ function can(p) { if (!p) return true; const role = ROLES[S.role] || ROLES.syste
 
 function notificationRoute(kind, data) { return APP.notificationRoute ? APP.notificationRoute(kind, data || {}) : null; }
 function adminUI(kind, data) { return APP.adminUI ? APP.adminUI(kind, data || {}) : ''; }
+function adminUI(kind, data) { return APP.adminUI ? APP.adminUI(kind, data || {}) : ''; }
 function roleLabel() { const role = ROLES[S.role] || ROLES.system; return role ? role.label : APP.actor; }
 
 let PERIOD = 30; const ser = () => SERIES.slice(-PERIOD);
