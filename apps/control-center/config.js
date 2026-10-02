@@ -1,3 +1,4 @@
+APP.renderShell = () => renderShell();
 APP.home = '/overview';
 APP.actor = 'Admin Pusat';
 APP.renderSide = () => renderSide();
