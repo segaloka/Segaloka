@@ -10,3 +10,5 @@ APP.notificationRoute = (kind, d) => ({ 'conversation.message': '/p/traveler/cha
 APP.documentTitle = () => BRAND.name + ' · Traveler';
 
 APP.routeScope = p => p.startsWith('/p/traveler');
+
+APP.actionScope = (name, scopes) => !scopes.length || scopes.includes('traveler');
