@@ -3,7 +3,7 @@ function renderTop() {
   const unread = (typeof myNotifs === 'function' ? myNotifs() : NOTIFS).filter(n => n.unread).length; const r = ROLES[S.role];
   document.getElementById('top').innerHTML = `
     <button class="iconbtn mob-only" data-act="drawer" aria-label="Menu">${ic('menu')}</button>
-    <div class="wsbtn" aria-label="${esc(wsOf() === 'admin' ? 'Super Admin' : L3(WS[wsOf()].label))}">${ic(wsOf() === 'admin' ? 'shieldc' : WS[wsOf()].icon, 'sm')}<span class="wsl">${esc(wsOf() === 'admin' ? 'Super Admin' : L3(WS[wsOf()].label))}</span></div>
+    <div class="wsbtn" aria-label="Super Admin">${ic('shieldc', 'sm')}<span class="wsl">Super Admin</span></div>
     <button class="searchbtn" data-act="search" aria-label="${esc(t('search'))}">${ic('search')}<span>${esc(t('search_ph'))}</span><kbd>Ctrl K</kbd></button>
     <div class="top-sp"></div>
     <button class="envpill" id="sync-pill" data-act="sync-info" title="Sync status"><i></i><span class="envtext">${esc(t('env_demo'))}</span></button>
