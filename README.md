@@ -1,7 +1,7 @@
 # SEGALOKA Control Center
 
 Dashboard Super Admin + 6 portal ekosistem (Travel, Vendor, Pengguna, Affiliate, Mitra Travel, Agen) untuk platform SEGALOKA.
-Aplikasinya satu halaman HTML mandiri (vanilla JS, tanpa framework) yang tersambung ke Supabase (Postgres) secara realtime.
+Setiap dashboard dibangun sebagai HTML mandiri (vanilla JS, tanpa framework), sementara seluruh role tetap tersambung ke backend Supabase (Postgres) dan realtime yang sama.
 
 ## Isi
 
@@ -30,7 +30,7 @@ Aplikasinya satu halaman HTML mandiri (vanilla JS, tanpa framework) yang tersamb
 ## Struktur kode
 
 ```
-build.sh           → menggabungkan semua file → segaloka-control-center.html
+build.sh           → membangun 7 bundle dashboard terpisah dengan shared runtime/services
 i18n.js            kamus ID/EN/AR + label status
 data.js            data contoh (hanya dipakai di mode ?demo)
 datamode.js        mode produksi/demo, angka turunan dari data nyata (recompute, seri harian, saldo)
@@ -48,7 +48,7 @@ tests/             E2E (Supabase/Postgres) + crawler yang mengklik semua aksi
 ## Build
 
 ```bash
-bash build.sh        # menghasilkan segaloka-control-center.html
+bash build.sh        # menghasilkan Control Center + Travel + Vendor + Traveler + Affiliate + Mitra + Agen
 ```
 
 Catatan: path di `build.sh` diawali `cd /home/claude/sg`. Ubah ke folder repo Anda bila perlu.
@@ -80,7 +80,7 @@ Inbox (balas) → control_center.omni_outbox → trigger pg_net → Edge Functio
 
 ```bash
 npm i -g playwright
-# 1) Semua route + klik setiap aksi; cek error JS, teks undefined/NaN, dan overflow horizontal
+# 0) Pastikan 7 bundle dashboard dapat boot terpisah dan tidak membawa route portal role lain\nnode tests/bundle-smoke.js\n# 1) Semua route + klik setiap aksi; cek error JS, teks undefined/NaN, dan overflow horizontal
 W=390 node tests/crawl-all-actions.js            # produksi, mobile
 W=1440 Q='?demo' node tests/crawl-all-actions.js # demo, desktop
 # 2) E2E produksi multi-layar dengan Postgres lokal (socket /tmp/pgd, port 55432) yang meniru connector Supabase:
