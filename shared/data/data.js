@@ -163,6 +163,9 @@ const CHANNELS = [
 const PLC_SLOT = { 'Web · Banner Beranda': 'segaloka.com / · hero 1200×400 · 3 slot rotasi', 'Web · Sponsored Pencarian': 'segaloka.com/cari · posisi 1–3', 'Web · Halaman Kategori': 'segaloka.com/umrah|haji|tour · posisi 1–2', 'Web · Rekomendasi Detail Paket': 'segaloka.com/paket/:id · "Paket serupa"', 'App · Banner Beranda': 'App Home · carousel 3:1 · 5 slot', 'App · Sponsored Pencarian': 'App Search · posisi 1–3', 'App · Rekomendasi Paket': 'App Home · "Untuk Anda"', 'App · Notifikasi In-App': 'App Inbox · maks 1/hari/pengguna (opt-in)' };
 const PLACEMENTS = AD_CHANNELS.map((ch, i) => ({ id: 'PLC-' + (1 + i), name: ch, kind: AD_SURF(ch), account: PLC_SLOT[ch], campaigns: CAMPAIGNS.filter(c => c.channels.includes(ch) && c.state === 'active').length, state: 'active' }));
 
+/* ---------- Travel websites (shared persistence registry) ---------- */
+const WEBSITES = TRAVELS.map((tr, i) => ({ id: 'WEB-' + tr.id.slice(4), name: tr.name, travel: tr.id, domain: tr.website, custom: i % 5 === 0 ? 'www.' + tr.website.split('.')[0] + '.co.id' : '', template: ['Hijaz', 'Madinah', 'Nusantara'][i % 3], ssl: ['active', 'grace', 'trial'].includes(tr.sub.state) ? 'active' : 'inactive', state: ['active', 'grace', 'trial'].includes(tr.sub.state) ? 'published' : 'unpublished', visits: ri(400, 22000) }));
+
 /* ---------- Conversations (Omnichannel) ---------- */
 const AGENTS = [{ id: 'ag1', name: 'Rahma (CS)', online: true, load: 6 }, { id: 'ag2', name: 'Fikri (CS)', online: true, load: 4 }, { id: 'ag3', name: 'Salma (Sales)', online: false, load: 2 }, { id: 'ag4', name: 'Dimas (Finance CS)', online: true, load: 3 }];
 const CONV_SEED = [
