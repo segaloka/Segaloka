@@ -34,5 +34,13 @@ const pHead = (ws, title, desc, actions) => phead({ crumbs: [[L3(WS[ws].label), 
 const portalBadge = ws => `<span class="chip" style="background:var(--accent-soft);color:var(--accent-text)">${ic(WS[ws].icon, 'sm')}${esc(L3(WS[ws].label))}</span>`;
 const tbl = (head, rows, empty) => rows.length ? `<div class="tbl-wrap"><table class="t"><thead><tr>${head.map(h => `<th class="${/^(Total|Nilai|Harga|Amount|Komisi|Saldo|Pax|Seat|GMV|Klik|Konversi|Rp)/.test(h) ? 'r' : ''}">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>` : stateBlock('empty', empty ? { title: empty } : {});
 const rowLink = (href, cells) => `<tr class="clickable" data-href="${href}">${cells}</tr>`;
-const fields = (F, pfx) => F.map(f => fieldHTML(f, null, pfx)).join('');
+const portalOpt = a => (a || []).map(x => Array.isArray(x) ? x : [x, x]);
+function portalFieldHTML(f, v, pfx) {
+  const id = pfx + f.k, val = v == null ? (f.def != null ? f.def : '') : v, req = f.req ? ' *' : '';
+  if (f.type === 'select') return `<div class="field"><label for="${id}">${esc(f.label)}${req}</label><select id="${id}">${portalOpt(typeof f.options === 'function' ? f.options() : f.options).map(o => `<option value="${esc(o[0])}" ${String(val) === String(o[0]) ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select>${f.hint ? `<span class="hint">${esc(f.hint)}</span>` : ''}</div>`;
+  if (f.type === 'textarea') return `<div class="field"><label for="${id}">${esc(f.label)}${req}</label><textarea id="${id}">${esc(val)}</textarea>${f.hint ? `<span class="hint">${esc(f.hint)}</span>` : ''}</div>`;
+  if (f.type === 'toggle') return `<label class="field" style="flex-direction:row;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="${id}" ${val ? 'checked' : ''}> ${esc(f.label)}</label>`;
+  return `<div class="field"><label for="${id}">${esc(f.label)}${req}</label><input type="${f.type || 'text'}" id="${id}" value="${esc(val)}" ${f.min != null ? 'min="' + f.min + '"' : ''} ${f.max != null ? 'max="' + f.max + '"' : ''} ${f.step ? 'step="' + f.step + '"' : ''}>${f.hint ? `<span class="hint">${esc(f.hint)}</span>` : ''}</div>`;
+}
+const fields = (F, pfx) => F.map(f => portalFieldHTML(f, null, pfx)).join('');
 
