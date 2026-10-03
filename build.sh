@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-COMMON_HEAD=( shared/i18n/i18n.js shared/data/data.js shared/runtime/core.js )
+COMMON_HEAD=( shared/i18n/i18n.js shared/data/data.js shared/data/plans.js shared/runtime/core.js )
 COMMON_PORTAL=( shared/portal-core.js shared/portal-shell.js shared/portal-topbar.js shared/portal-onboarding.js )
 COMMON_SERVICES=( shared/services/segadeals.js shared/services/flows.js shared/services/reviews.js shared/services/sdterms.js shared/services/gateway.js shared/runtime/datamode.js shared/services/notify.js shared/services/canonical-adapter.js shared/services/sync.js shared/runtime/main.js shared/runtime/boot.js )
 
