@@ -139,6 +139,15 @@ const CAMPAIGNS = CAMP_NAMES.map((name, i) => { const st = CAMP_STATES[i]; const
 const campById = id => CAMPAIGNS.find(c => c.id === id);
 BOOKINGS.forEach((b, i) => { if (b.source === 'Campaign') b.campaign = CAMPAIGNS[i % 7].id; });
 
+/* ---------- Shared Segaloka omnichannel registry ---------- */
+const CHANNELS = [
+ { id: 'wa', key: 'whatsapp', nav: 'om_wa', name: 'WhatsApp', account: '+62 811 7000 1448 · BSP terverifikasi', quality: 'High', state: 'active', convs: 62, cfg: { queue: 'Umrah', autoReply: true, hours: '08:00–21:00 WITA' } },
+ { id: 'ig', key: 'instagram', nav: 'om_ig', name: 'Instagram', account: '@segaloka.id · DM + komentar', quality: '—', state: 'active', convs: 17, cfg: { queue: 'Sales', autoReply: true, hours: '08:00–21:00 WITA' } },
+ { id: 'fb', key: 'facebook', nav: 'om_fb', name: 'Facebook', account: 'Segaloka Page · Messenger', quality: '—', state: 'active', convs: 4, cfg: { queue: 'Default', autoReply: false, hours: '08:00–17:00 WITA' } },
+ { id: 'email', key: 'email', nav: 'om_email', name: 'Email', account: 'cs@segaloka.example · SPF/DKIM ✓', quality: '—', state: 'active', convs: 6, cfg: { queue: 'Finance CS', autoReply: true, hours: '24 jam' } },
+ { id: 'web', key: 'webchat', nav: 'om_web', name: 'Web Chat', account: 'Widget di 21 website Travel', quality: '—', state: 'active', convs: 11, cfg: { queue: 'Default', autoReply: true, hours: '24 jam' } }
+];
+
 /* ---------- Shared Segaloka ad placement registry ---------- */
 const PLC_SLOT = { 'Web · Banner Beranda': 'segaloka.com / · hero 1200×400 · 3 slot rotasi', 'Web · Sponsored Pencarian': 'segaloka.com/cari · posisi 1–3', 'Web · Halaman Kategori': 'segaloka.com/umrah|haji|tour · posisi 1–2', 'Web · Rekomendasi Detail Paket': 'segaloka.com/paket/:id · "Paket serupa"', 'App · Banner Beranda': 'App Home · carousel 3:1 · 5 slot', 'App · Sponsored Pencarian': 'App Search · posisi 1–3', 'App · Rekomendasi Paket': 'App Home · "Untuk Anda"', 'App · Notifikasi In-App': 'App Inbox · maks 1/hari/pengguna (opt-in)' };
 const PLACEMENTS = AD_CHANNELS.map((ch, i) => ({ id: 'PLC-' + (1 + i), name: ch, kind: AD_SURF(ch), account: PLC_SLOT[ch], campaigns: CAMPAIGNS.filter(c => c.channels.includes(ch) && c.state === 'active').length, state: 'active' }));
