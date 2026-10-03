@@ -137,7 +137,6 @@ build_bundle agen "SEGALOKA Agen" apps/agen/config.js apps/agen/portal.js shared
 # Vercel/static deployment output. Keep standalone root HTML files for local QA.
 rm -rf dist
 mkdir -p dist
-cp segaloka-control-center.html dist/index.html
 cp segaloka-control-center.html dist/control-center.html
 cp segaloka-travel.html dist/travel.html
 cp segaloka-vendor.html dist/vendor.html
@@ -145,3 +144,29 @@ cp segaloka-traveler.html dist/traveler.html
 cp segaloka-affiliate.html dist/affiliate.html
 cp segaloka-mitra.html dist/mitra.html
 cp segaloka-agen.html dist/agen.html
+
+# Root is a hostname dispatcher, not a Control Center fallback.
+# This is a second routing boundary behind Vercel host rewrites: if a platform
+# host condition is ever skipped, a role hostname still cannot render Admin Pusat.
+cat > dist/index.html <<'HTML'
+<!doctype html>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>SEGALOKA</title>
+<script>
+(function () {
+  var host = location.hostname.toLowerCase();
+  var routes = {
+    "dev.dashboard.segaloka.com": "/control-center",
+    "dev.travel.segaloka.com": "/travel",
+    "dev.vendor.segaloka.com": "/vendor",
+    "dev.traveler.segaloka.com": "/traveler",
+    "dev.affiliate.segaloka.com": "/affiliate",
+    "dev.mitra.segaloka.com": "/mitra",
+    "dev.agen.segaloka.com": "/agen"
+  };
+  location.replace(routes[host] || "/control-center");
+})();
+</script>
+<noscript>JavaScript diperlukan untuk membuka dashboard Segaloka.</noscript>
+HTML
