@@ -27,12 +27,29 @@ jobs:
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Browser runtime smoke test
+        id: runtime_smoke
         if: steps.dashboard_build.outputs.exit_code == '0'
         shell: bash
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install chromium
-          node tests/bundle-smoke.js
+          set +e
+          node tests/bundle-smoke.js 2>&1 | tee runtime-smoke.log
+          status=${PIPESTATUS[0]}
+          echo "smoke_exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload runtime smoke diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-smoke-log
+          path: runtime-smoke.log
+          if-no-files-found: warn
+
+      - name: Fail when runtime smoke failed
+        if: steps.runtime_smoke.outputs.smoke_exit_code != '0'
+        run: exit 1
 
       - name: Upload build diagnostic
         uses: actions/upload-artifact@v4
