@@ -7,7 +7,7 @@ function renderPortalTop() {
     <div class="wsbtn" aria-label="${esc(L3(WS[ws].label))}">${ic(WS[ws].icon, 'sm')}<span class="wsl">${esc(L3(WS[ws].label))}</span></div>
     <button class="searchbtn" data-act="search" aria-label="${esc(t('search'))}">${ic('search')}<span>${esc(t('search_ph'))}</span><kbd>Ctrl K</kbd></button>
     <div class="top-sp"></div>
-    <button class="envpill" id="sync-pill" data-act="sync-info" title="Sync status"><i></i><span class="envtext">${esc(t('env_demo'))}</span></button>
+    <button class="envpill" id="sync-pill" data-act="sync-info" title="Sync status"><i></i><span class="envtext">${esc(L3(['Menghubungkan…', 'Connecting…', 'جارٍ الاتصال…']))}</span></button>
     <div class="hijri"><b>${esc(fD(nowTs(), { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }))}</b>${esc(hijri())}</div>
     <div class="seg lang" role="group" aria-label="${esc(t('language'))}">${['id', 'en', 'ar'].map(l => `<button data-act="lang" data-v="${l}" aria-pressed="${S.lang === l}">${{ id: 'ID', en: 'EN', ar: 'AR' }[l]}</button>`).join('')}</div>
     <div class="seg theme" role="group" aria-label="${esc(t('theme'))}">${[['light', 'sun'], ['dark', 'moon'], ['system', 'monitor']].map(([v, i]) => `<button data-act="theme" data-v="${v}" aria-pressed="${S.theme === v}" aria-label="${esc(t('theme_' + v))}" data-tip="${esc(t('theme_' + v))}">${ic(i, 'sm')}</button>`).join('')}</div>
