@@ -83,6 +83,10 @@ const AFFILIATES = AFF_NAMES.map((name, i) => { const links = [...new Set([0, 0,
 /* ---------- Mitra Travel (terhubung ke tepat SATU Travel) ---------- */
 const MITRA = Array.from({ length: 14 }, (_, i) => ({ id: 'MTR-' + (5001 + i), name: pick(PEOPLE), travel: TRAVELS[i % 12].id, city: pick(CITIES)[0], jamaah30: ri(0, 24), status: i % 6 === 5 ? 'inactive' : 'active' }));
 
+const AGEN = [];
+MITRA.forEach((m, i) => { for (let k = 0; k < i % 4; k++) AGEN.push({ id: 'AGN-' + (8101 + AGEN.length * 3), name: PEOPLE[(i * 5 + k * 11 + 3) % PEOPLE.length], mitra: m.id, travel: m.travel, city: CITIES[(i + k * 2) % CITIES.length][0], phone: '+62 81' + ((i + k) % 9 + 1) + ' ' + (4100 + i * 37 + k * 11) + ' ' + (2200 + k * 97), jamaah30: (i * 3 + k * 5) % 12, status: m.status === 'inactive' ? 'inactive' : 'active', joined: T0 - (i * 20 + k * 7 + 10) * D }); });
+const uid = p => p + '-' + Date.now().toString(36).toUpperCase().slice(-6) + Math.random().toString(36).slice(2, 4).toUpperCase();
+
 /* ---------- Packages / Marketplace ---------- */
 const PKG_TPL = [['Umrah Reguler 9 Hari','Umrah',28.9e6,36.5e6],['Umrah Plus Thaif 12 Hari','Umrah',34e6,42e6],['Umrah Ramadhan 15 Hari','Umrah',41e6,58e6],['Umrah VIP Pusat Kota 9 Hari','Umrah',45e6,62e6],['Haji Khusus 1448 H','Haji',185e6,245e6],['Halal Tour Turki 10 Hari','Halal Tour',24e6,33e6],['Halal Tour Jepang 8 Hari','Halal Tour',27e6,36e6],['Tour Uzbekistan 9 Hari','Tour',22e6,29e6],['Umrah Plus Dubai 12 Hari','Umrah',37e6,46e6],['Halal Tour Korea 7 Hari','Halal Tour',19e6,26e6]];
 const PACKAGES = [];
