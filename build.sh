@@ -97,28 +97,27 @@ echo "syntax-check bundle: _control-center.js"
 node --check _control-center.js
 
 # Hard UI boundary: Control Center is administration only, never a portal/workspace switcher.
+# Role names may legitimately appear in admin data/audit copy, so guard structural switcher markers only.
 CONTROL_FORBIDDEN_PATTERNS=(
   "PINDAH WORKSPACE"
   "Pindah Workspace"
-  "Portal Travel"
-  "Portal Vendor"
-  "Aplikasi Pengguna"
-  "Portal Affiliate"
-  "Portal Mitra Travel"
-  "Portal Agen"
 )
-emit_html "SEGALOKA Control Center" _control-center.js segaloka-control-center.html
-
-# Validate rendered/deployable output rather than source comments.
 for pattern in "${CONTROL_FORBIDDEN_PATTERNS[@]}"; do
-  if grep -Fq "$pattern" segaloka-control-center.html; then
-    # Ignore source-code comments embedded inside the script payload.
-    if grep -F "$pattern" segaloka-control-center.html | grep -Fv "/*" | grep -Fv "*/" >/dev/null; then
-      echo "ERROR: Control Center contains forbidden workspace switcher marker: $pattern" >&2
-      exit 1
-    fi
+  if grep -Fq "$pattern" _control-center.js; then
+    echo "ERROR: Control Center contains forbidden workspace switcher marker: $pattern" >&2
+    exit 1
   fi
 done
+
+# The Control Center topbar itself must not contain role-portal navigation/switch handlers.
+for pattern in "data-act=\"workspace\"" "data-act=\"switch-workspace\"" "data-act=\"switch-portal\"" "workspace-menu" "workspaceMenu"; do
+  if grep -Fq "$pattern" apps/control-center/topbar.js; then
+    echo "ERROR: Control Center topbar contains workspace switcher structure: $pattern" >&2
+    exit 1
+  fi
+done
+
+emit_html "SEGALOKA Control Center" _control-center.js segaloka-control-center.html
 
 build_bundle travel "SEGALOKA Travel" apps/travel/config.js apps/travel/portal.js
 build_bundle vendor "SEGALOKA Vendor" apps/vendor/config.js apps/vendor/portal.js
