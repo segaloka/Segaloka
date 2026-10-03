@@ -13,7 +13,7 @@
           "value": "dev.dashboard.segaloka.com"
         }
       ],
-      "destination": "/control-center.html"
+      "destination": "/control-center"
     },
     {
       "source": "/",
@@ -23,7 +23,7 @@
           "value": "dev.travel.segaloka.com"
         }
       ],
-      "destination": "/travel.html"
+      "destination": "/travel"
     },
     {
       "source": "/",
@@ -33,7 +33,7 @@
           "value": "dev.vendor.segaloka.com"
         }
       ],
-      "destination": "/vendor.html"
+      "destination": "/vendor"
     },
     {
       "source": "/",
@@ -43,7 +43,7 @@
           "value": "dev.traveler.segaloka.com"
         }
       ],
-      "destination": "/traveler.html"
+      "destination": "/traveler"
     },
     {
       "source": "/",
@@ -53,7 +53,7 @@
           "value": "dev.affiliate.segaloka.com"
         }
       ],
-      "destination": "/affiliate.html"
+      "destination": "/affiliate"
     },
     {
       "source": "/",
@@ -63,7 +63,7 @@
           "value": "dev.mitra.segaloka.com"
         }
       ],
-      "destination": "/mitra.html"
+      "destination": "/mitra"
     },
     {
       "source": "/",
@@ -73,35 +73,7 @@
           "value": "dev.agen.segaloka.com"
         }
       ],
-      "destination": "/agen.html"
-    },
-    {
-      "source": "/control-center",
-      "destination": "/control-center.html"
-    },
-    {
-      "source": "/travel",
-      "destination": "/travel.html"
-    },
-    {
-      "source": "/vendor",
-      "destination": "/vendor.html"
-    },
-    {
-      "source": "/traveler",
-      "destination": "/traveler.html"
-    },
-    {
-      "source": "/affiliate",
-      "destination": "/affiliate.html"
-    },
-    {
-      "source": "/mitra",
-      "destination": "/mitra.html"
-    },
-    {
-      "source": "/agen",
-      "destination": "/agen.html"
+      "destination": "/agen"
     }
   ]
 }
