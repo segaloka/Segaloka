@@ -103,6 +103,13 @@ const BOOKINGS = Array.from({ length: 64 }, (_, i) => { const pk = PACKAGES[(i *
 BOOKINGS.sort((a, b) => b.created - a.created);
 const bookingById = id => BOOKINGS.find(b => b.id === id);
 
+const REFLINKS = []; AFFILIATES.forEach(a => a.travels.forEach(tid => REFLINKS.push({ id: 'REF-' + (8100 + REFLINKS.length * 3), name: a.code + '-' + tid.slice(4), aff: a.id, travel: tid, url: travelById(tid).website + '/?ref=' + a.code, clicks: ri(100, 8000), conv: ri(0, 30), state: rnd() < .85 ? 'active' : 'paused' })));
+const COMMISSIONS = BOOKINGS.slice(0, 26).map((b, i) => { const a = AFFILIATES[i % AFFILIATES.length]; const rate = [2, 2.5, 3][i % 3]; return { id: 'COM-' + (5500 + i * 7), name: a.name + ' · ' + b.id, aff: a.id, booking: b.id, travel: b.travel, rate, amount: Math.round(b.total * rate / 100), state: ['refunded', 'cancelled', 'failed'].includes(b.state) ? 'rejected' : wpick(['pending', 'approved', 'paid'], [35, 25, 40]) }; });
+/* SegaDeals: lihat segadeals.js (permintaan pengguna → penawaran Travel) */
+const MPCATS = ['Umrah', 'Haji', 'Halal Tour', 'Tour', 'Tiket', 'Hotel', 'Land Arrangement', 'Visa', 'Perlengkapan'].map((c, i) => ({ id: 'CAT-' + (11 + i), name: c, parent: i < 4 ? 'Paket Travel' : 'Produk Vendor', slug: c.toLowerCase().replace(/\s+/g, '-'), listings: i < 4 ? PACKAGES.filter(p => p.cat === c).length : VPRODUCTS.filter(v => v.cat === c).length, state: 'active' }));
+
+
+
 /* ---------- Payments (gateway events) ---------- */
 const PROVIDERS = [{ id: 'midtrans', name: 'Midtrans', status: 'healthy', success: 98.6, latency: 420, share: 46 }, { id: 'xendit', name: 'Xendit', status: 'healthy', success: 97.9, latency: 510, share: 38 }, { id: 'doku', name: 'DOKU', status: 'degraded', success: 91.2, latency: 1840, share: 16 }];
 const CHANNELS_PAY = ['VA BCA','VA Mandiri','VA BSI','QRIS','Kartu Kredit','VA BRI'];
