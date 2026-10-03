@@ -68,6 +68,14 @@ const VENDOR_NAMES = [['Al-Kiswah Hospitality',['Hotel','Akomodasi']],['Rawdah T
 const VENDORS = VENDOR_NAMES.map(([name, cats], i) => ({ id: 'VND-' + String(3101 + i * 13), name, cats, country: i % 4 === 0 ? 'Indonesia' : i === 15 ? 'Turki' : 'Arab Saudi', verif: wpick(['verified','under_review','submitted','rejected'], [70, 14, 10, 6]), status: 'active', products: ri(3, 42), orders30: ri(4, 260), gmv30: ri(90, 5200) * 1e6, balance: ri(10, 900) * 1e6, rating: (ri(38, 50) / 10).toFixed(1), sla: ri(82, 99), color: colorFor(name), joined: T0 - ri(30, 900) * D }));
 VENDORS.forEach(v => { if (v.verif !== 'verified') v.status = v.verif === 'rejected' ? 'inactive' : 'review'; });
 
+/* ---------- Shared marketplace/vendor product data ---------- */
+const licFor = { Umrah: 'PPIU', Haji: 'PIHK', 'Halal Tour': 'BPW', Tour: 'BPW' };
+const licOk = (tr, cat) => { const l = tr.lic.find(x => x.type === licFor[cat]); return l && ['verified', 'expiring'].includes(l.status); };
+
+
+const VP_TPL = { Hotel: ['Kamar Quad', 'Kamar Double'], Tiket: ['Seat CGK–JED PP', 'Seat SUB–MED PP'], Visa: ['Visa Umrah (e-visa)'], Catering: ['Paket makan 3×/hari'], Transportasi: ['Bus Makkah–Madinah', 'Transfer bandara'], 'Land Arrangement': ['LA 9 hari', 'LA 12 hari'], Akomodasi: ['Apartemen keluarga'], Perlengkapan: ['Kit ihram & koper'] };
+const VPRODUCTS = []; VENDORS.forEach(v => v.cats.forEach(c => (VP_TPL[c] || []).forEach(n => VPRODUCTS.push({ id: 'VP-' + (40100 + VPRODUCTS.length * 3), name: n + ' · ' + v.name.split(' ')[0], vendor: v.id, cat: c, price: ri(3, 90) * 1e5 * (c === 'Tiket' ? 40 : c === 'Land Arrangement' ? 30 : 1), unit: { Hotel: '/malam', Tiket: '/pax', Visa: '/pax', Catering: '/pax/hari', Transportasi: '/trip', 'Land Arrangement': '/pax', Akomodasi: '/malam', Perlengkapan: '/set' }[c], allot: ri(10, 400), state: v.verif !== 'verified' ? 'draft' : wpick(['published', 'review', 'draft', 'unpublished'], [60, 15, 10, 15]) }))));
+
 /* ---------- Affiliates (multi-Travel, terpisah dari Vendor & Mitra) ---------- */
 const AFF_NAMES = ['Rumah Hijrah Community','Kajian Pekanbaru Network','Ust. Hanif Maulana','Nadia Travel Notes','Komunitas Muslimah Bandung','Ahmad Fauzi','Siti Rahmawati','Majelis Taklim Al-Ikhlas','Halal Trip Enthusiast','Yayasan Cahaya Umat'];
 const AFFILIATES = AFF_NAMES.map((name, i) => { const links = [...new Set([0, 0, 0].map(() => pick(TRAVELS).id))]; const clicks = ri(800, 24000), conv = ri(3, 90); return { id: 'AFF-' + String(701 + i * 9), name, type: i % 3 === 0 ? 'Komunitas' : i % 3 === 1 ? 'Organisasi' : 'Individu', travels: links, code: name.split(' ')[0].toUpperCase().replace(/[^A-Z]/g, '').slice(0, 6) + ri(10, 99), clicks, conv, gmv: conv * ri(28, 45) * 1e6, commission: conv * ri(400, 900) * 1e3, payable: ri(0, 12) * 1e6, status: i === 7 ? 'review' : 'active', color: colorFor(name) }; });
