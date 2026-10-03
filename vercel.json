@@ -5,12 +5,103 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/control-center", "destination": "/control-center.html" },
-    { "source": "/travel", "destination": "/travel.html" },
-    { "source": "/vendor", "destination": "/vendor.html" },
-    { "source": "/traveler", "destination": "/traveler.html" },
-    { "source": "/affiliate", "destination": "/affiliate.html" },
-    { "source": "/mitra", "destination": "/mitra.html" },
-    { "source": "/agen", "destination": "/agen.html" }
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev.dashboard.segaloka.com"
+        }
+      ],
+      "destination": "/control-center.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev.travel.segaloka.com"
+        }
+      ],
+      "destination": "/travel.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev.vendor.segaloka.com"
+        }
+      ],
+      "destination": "/vendor.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev.traveler.segaloka.com"
+        }
+      ],
+      "destination": "/traveler.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev.affiliate.segaloka.com"
+        }
+      ],
+      "destination": "/affiliate.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev.mitra.segaloka.com"
+        }
+      ],
+      "destination": "/mitra.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev.agen.segaloka.com"
+        }
+      ],
+      "destination": "/agen.html"
+    },
+    {
+      "source": "/control-center",
+      "destination": "/control-center.html"
+    },
+    {
+      "source": "/travel",
+      "destination": "/travel.html"
+    },
+    {
+      "source": "/vendor",
+      "destination": "/vendor.html"
+    },
+    {
+      "source": "/traveler",
+      "destination": "/traveler.html"
+    },
+    {
+      "source": "/affiliate",
+      "destination": "/affiliate.html"
+    },
+    {
+      "source": "/mitra",
+      "destination": "/mitra.html"
+    },
+    {
+      "source": "/agen",
+      "destination": "/agen.html"
+    }
   ]
 }
