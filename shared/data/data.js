@@ -57,6 +57,7 @@ const TRAVELS = TRAVEL_NAMES.map((name, i) => {
   };
 });
 const travelById = id => TRAVELS.find(x => x.id === id);
+const pkgById = id => PACKAGES.find(p => p.id === id);
 
 /* ---------- Branches ---------- */
 const BRANCHES = [];
