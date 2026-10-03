@@ -44,7 +44,7 @@ function st(key) { const s = STATUS[key] || ['neu', 'circle', key, key, key]; re
 const stTone = key => (STATUS[key] || ['neu'])[0];
 function ent(name, sub, color, mark) { return `<div class="ent"><div class="lg" style="background:${color || '#3A4F8F'}" aria-hidden="true">${esc(mark || initials(name))}</div><div style="min-width:0"><b>${esc(name)}</b>${sub ? `<span>${sub}</span>` : ''}</div></div>`; }
 const prio = p => `<span class="prio ${p}"><i></i>${{ p1: L3(['Tinggi', 'High', 'عالية']), p2: L3(['Sedang', 'Medium', 'متوسطة']), p3: L3(['Rendah', 'Low', 'منخفضة']) }[p]}</span>`;
-const mockmark = () => !DEMO ? '' : `<span class="mockmark" title="Demonstration data">${ic('flag', 'sm')}DEMO</span>`;
+const mockmark = () => '';
 function crumbs(list) { return `<nav class="crumbs" aria-label="Breadcrumb">${list.map((c, i) => i === list.length - 1 ? `<span class="cur" aria-current="page">${esc(c[0])}</span>` : `<a href="#${c[1]}">${esc(c[0])}</a>${icd('chevR', 'sm')}`).join('')}</nav>`; }
 function phead({ crumbs: cr, title, desc, actions, extra }) { return `${crumbs(cr)}<div class="phead"><div class="ttl"><h1>${esc(title)}</h1>${desc ? `<p>${esc(desc)}</p>` : ''}${extra || ''}</div>${actions ? `<div class="actions">${actions}</div>` : ''}</div>`; }
 function permBtn(perm, html, attrs, cls) { const ok = can(perm); const off = S.ux === 'offline' && /data-mut/.test(attrs || ''); return `<button class="btn ${cls || ''}" ${ok && !off ? attrs : 'aria-disabled="true" data-tip="' + esc(ok ? t('offline') : t('no_perm_action') + ': ' + perm) + '"'}>${html}</button>`; }
