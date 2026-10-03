@@ -3,7 +3,6 @@ const mockBanner = () => DEMO ? `<div class="banner info" style="border:1px soli
 const pnl = (title, body, opts = {}) => `<section class="panel ${opts.cls || ''}" ${opts.id ? `id="${opts.id}"` : ''}><div class="panel-h"><h3>${opts.icon ? ic(opts.icon, 'sm') : ''}${esc(title)}${opts.small ? ` <small>${opts.small}</small>` : ''}</h3>${opts.right || ''}</div>${opts.raw ? body : `<div class="panel-b">${body}</div>`}${opts.foot ? `<div class="panel-f">${opts.foot}</div>` : ''}</section>`;
 const seeAll = r => `<a href="#${r}" class="btn sm ghost">${t('see_all')}${icd('chevR', 'sm')}</a>`;
 const DOMKEY = { Travel: 'travel', Vendor: 'vendor', Legalitas: 'legal', Keuangan: 'finance', Keamanan: 'security', Ads: 'ads', Marketplace: 'marketplace', SaaS: 'saas' };
-const pkgById = id => PACKAGES.find(p => p.id === id);
 const trvName = id => (TRAVELERS.find(x => x.id === id) || {}).name || id;
 
 /* =============================== OVERVIEW =============================== */
