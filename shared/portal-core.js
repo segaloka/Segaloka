@@ -3,9 +3,6 @@
    Satu aplikasi, satu database. Setiap portal dibatasi (scoped) ke satu entitas.
    Di produksi: tiap portal = login sendiri + RLS per tenant; di sini: pratinjau "masuk sebagai".
    ===================================================================== */
-const AGEN = [];
-MITRA.forEach((m, i) => { for (let k = 0; k < i % 4; k++) AGEN.push({ id: 'AGN-' + (8101 + AGEN.length * 3), name: PEOPLE[(i * 5 + k * 11 + 3) % PEOPLE.length], mitra: m.id, travel: m.travel, city: CITIES[(i + k * 2) % CITIES.length][0], phone: '+62 81' + ((i + k) % 9 + 1) + ' ' + (4100 + i * 37 + k * 11) + ' ' + (2200 + k * 97), jamaah30: (i * 3 + k * 5) % 12, status: m.status === 'inactive' ? 'inactive' : 'active', joined: T0 - (i * 20 + k * 7 + 10) * D }); });
-const uid = p => p + '-' + Date.now().toString(36).toUpperCase().slice(-6) + Math.random().toString(36).slice(2, 4).toUpperCase();
 function ensureLinks() { let n = 0; const h = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7); BOOKINGS.forEach(b => { if (b.mitra || b.lk) return; const ms = MITRA.filter(m => m.travel === b.travel && m.status === 'active'); b.lk = 1; n++; if (!ms.length || !(b.source === 'Mitra Travel' || h(b.id) % 3 === 0)) return; const m = ms[h(b.id) % ms.length]; b.source = 'Mitra Travel'; b.mitra = m.id; const ag = AGEN.filter(a => a.mitra === m.id && a.status === 'active'); if (ag.length && h(b.id) % 2) b.agen = ag[h(b.id) % ag.length].id; }); return n; }
 ensureLinks();
 
