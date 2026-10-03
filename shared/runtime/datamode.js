@@ -8,7 +8,7 @@ const ENTITY_ARRAYS = () => [(typeof TRAVELS !== 'undefined' ? TRAVELS : null), 
 const VORDERS = [];
 function clearFakeStats() {
   PROVIDERS.forEach(p => { p.status = 'healthy'; p.success = null; p.latency = null; p.share = null; });
-  SERVICES.length = 0;
+  if (typeof SERVICES !== 'undefined') SERVICES.length = 0;
   if (typeof AUTOMATIONS !== 'undefined') AUTOMATIONS.forEach(a => a.runs = 0);
   if (typeof SLAS !== 'undefined') SLAS.forEach(s => s.met = null);
   if (typeof TRACKERS !== 'undefined') TRACKERS.forEach(t => t.match = null);
