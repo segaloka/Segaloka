@@ -49,6 +49,7 @@ build_bundle() {
 
 CONTROL_FILES=(
   "${COMMON_HEAD[@]}"
+  shared/portal-shell.js
   apps/control-center/config.js
   apps/control-center/shell.js
   apps/control-center/topbar.js
@@ -95,6 +96,12 @@ check_js_files "${CONTROL_FILES[@]}"
 cat "${CONTROL_FILES[@]}" > _control-center.js
 echo "syntax-check bundle: _control-center.js"
 node --check _control-center.js
+
+# Runtime dependency guard: Control Center boot calls APP.renderShell(), which requires renderShell().
+if ! grep -Fq "function renderShell" _control-center.js; then
+  echo "ERROR: Control Center bundle is missing renderShell runtime dependency" >&2
+  exit 1
+fi
 
 # Hard UI boundary: Control Center is administration only, never a portal/workspace switcher.
 # Role names may legitimately appear in admin data/audit copy, so guard structural switcher markers only.
