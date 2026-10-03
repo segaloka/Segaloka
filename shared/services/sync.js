@@ -87,7 +87,10 @@ let flushT = null; const scheduleFlush = () => { clearTimeout(flushT); flushT = 
 ['click', 'change'].forEach(ev => document.addEventListener(ev, () => { if (SB.on) scheduleFlush(); }, true));
 document.addEventListener('keyup', e => { if (SB.on && e.key === 'Enter') scheduleFlush(); });
 /* v6: iklan hanya di inventori Segaloka (web + app). Data lama (Meta/Google/TikTok/WA/Email) dipetakan ke slot internal. Idempoten. */
-function migrateAdsInventory() { let n = 0; const map = ch => AD_LEGACY[ch] || ch;
+function migrateAdsInventory() {
+  // Control Center-only migration. Role bundles must not depend on admin registries.
+  if (APP.actor !== 'Admin Pusat') return 0;
+ let n = 0; const map = ch => AD_LEGACY[ch] || ch;
   CAMPAIGNS.forEach(c => { const nx = [...new Set((c.channels || []).map(map))].filter(ch => AD_CHANNELS.includes(ch)); if (JSON.stringify(nx) !== JSON.stringify(c.channels)) { c.channels = nx.length ? nx : ['Web · Sponsored Pencarian']; n++; } if (c.name === 'SegaDeals Flash — Oktober') { c.name = 'SegaDeals — Ajukan Permintaan Umrah'; n++; } if (c.landing === 'wa' || c.landing === 'web') { c.landing = c.landing === 'wa' ? 'chat' : 'travel'; n++; } });
   ADSETS.forEach(a => { if (AD_LEGACY[a.channel]) { a.channel = AD_LEGACY[a.channel]; n++; } });
   APPROVALS.forEach(a => (a.ctx || []).forEach(x => { if (x[0] === 'Channel' && typeof x[1] === 'string' && Object.keys(AD_LEGACY).some(k => x[1].includes(k))) { x[1] = [...new Set(x[1].split(', ').map(map))].join(', '); n++; } }));
