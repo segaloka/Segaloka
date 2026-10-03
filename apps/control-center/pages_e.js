@@ -1,11 +1,4 @@
 /* =============================== OMNICHANNEL =============================== */
-const CHANNELS = [
- { id: 'wa', key: 'whatsapp', nav: 'om_wa', name: 'WhatsApp', account: '+62 811 7000 1448 · BSP terverifikasi', quality: 'High', state: 'active', convs: 62, cfg: { queue: 'Umrah', autoReply: true, hours: '08:00–21:00 WITA' } },
- { id: 'ig', key: 'instagram', nav: 'om_ig', name: 'Instagram', account: '@segaloka.id · DM + komentar', quality: '—', state: 'active', convs: 17, cfg: { queue: 'Sales', autoReply: true, hours: '08:00–21:00 WITA' } },
- { id: 'fb', key: 'facebook', nav: 'om_fb', name: 'Facebook', account: 'Segaloka Page · Messenger', quality: '—', state: 'active', convs: 4, cfg: { queue: 'Default', autoReply: false, hours: '08:00–17:00 WITA' } },
- { id: 'email', key: 'email', nav: 'om_email', name: 'Email', account: 'cs@segaloka.example · SPF/DKIM ✓', quality: '—', state: 'active', convs: 6, cfg: { queue: 'Finance CS', autoReply: true, hours: '24 jam' } },
- { id: 'web', key: 'webchat', nav: 'om_web', name: 'Web Chat', account: 'Widget di 21 website Travel', quality: '—', state: 'active', convs: 11, cfg: { queue: 'Default', autoReply: true, hours: '24 jam' } }
-];
 const QUEUES = ['Umrah', 'Haji', 'Sales', 'Finance CS', 'Default'];
 /* halaman channel & aksinya ada di omni.js (koneksi nyata ke provider) */
 route('/omni', () => { const act = CONVERSATIONS.filter(c => ['open', 'pending'].includes(c.status)); const breach = CONVERSATIONS.filter(c => c.sla != null && c.sla < 0);
