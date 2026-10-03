@@ -23,7 +23,8 @@ const APPS = [
     page.on('pageerror', e => errors.push(e.message));
     page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
     const file = 'file://' + path.join(ROOT, app.file);
-    await page.goto(file + (process.env.Q || '?demo') + '#' + app.home);
+    const query = process.env.Q === undefined ? '' : process.env.Q;
+    await page.goto(file + query + '#' + app.home);
     await page.waitForTimeout(600);
     const state = await page.evaluate(() => {
       let routes = [], home = null, actor = null;
