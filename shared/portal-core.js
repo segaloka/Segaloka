@@ -1,7 +1,7 @@
 /* =====================================================================
    PORTAL EKOSISTEM — Travel · Vendor · Pengguna · Affiliate · Mitra Travel · Agen
    Satu aplikasi, satu database. Setiap portal dibatasi (scoped) ke satu entitas.
-   Di produksi: tiap portal = login sendiri + RLS per tenant; di sini: pratinjau "masuk sebagai".
+   Tiap portal dibatasi ke role dan entitasnya masing-masing.
    ===================================================================== */
 function ensureLinks() { let n = 0; const h = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7); BOOKINGS.forEach(b => { if (b.mitra || b.lk) return; const ms = MITRA.filter(m => m.travel === b.travel && m.status === 'active'); b.lk = 1; n++; if (!ms.length || !(b.source === 'Mitra Travel' || h(b.id) % 3 === 0)) return; const m = ms[h(b.id) % ms.length]; b.source = 'Mitra Travel'; b.mitra = m.id; const ag = AGEN.filter(a => a.mitra === m.id && a.status === 'active'); if (ag.length && h(b.id) % 2) b.agen = ag[h(b.id) % ag.length].id; }); return n; }
 ensureLinks();
