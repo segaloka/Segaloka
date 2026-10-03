@@ -25,14 +25,17 @@ const APPS = [
     const file = 'file://' + path.join(ROOT, app.file);
     await page.goto(file + (process.env.Q || '?demo') + '#' + app.home);
     await page.waitForTimeout(600);
-    const state = await page.evaluate(() => ({
-      root: !!document.getElementById('root'),
-      work: !!document.getElementById('work'),
-      text: (document.getElementById('work') || {}).innerText || '',
-      routes: typeof ROUTES === 'undefined' ? [] : ROUTES.map(r => r.pattern),
-      home: typeof APP === 'undefined' ? null : APP.home,
-      actor: typeof APP === 'undefined' ? null : APP.actor
-    }));
+    const state = await page.evaluate(() => {
+      let routes = [], home = null, actor = null;
+      try { routes = ROUTES.map(r => r.pattern); } catch (_) {}
+      try { home = APP.home; actor = APP.actor; } catch (_) {}
+      return {
+        root: !!document.getElementById('root'),
+        work: !!document.getElementById('work'),
+        text: (document.getElementById('work') || {}).innerText || '',
+        routes, home, actor
+      };
+    });
     if (!state.root || !state.work || state.text.length < 20) failures.push(app.name + ': dashboard did not render');
     if (state.home !== app.home) failures.push(app.name + ': APP.home=' + state.home + ', expected ' + app.home);
     const foreign = state.routes.filter(p => p.startsWith('/p/') && !app.allow(p));
